@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tymerr. | study tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">☰</button>
+<div class="shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <nav class="sidebar" id="sidebar">
+    <div class="brand-row">
+      <div class="brand">Tymerr<span>.</span></div>
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Collapse sidebar">‹</button>
+    </div>
+
+    <div class="nav-group">
+      <button class="nav-item active" data-page="timer">
+        <span class="nav-ico">◴</span><span class="nav-label">Timer</span>
+      </button>
+      <button class="nav-item" data-page="activity">
+        <span class="nav-ico">▦</span><span class="nav-label">Analytics</span>
+      </button>
+      <button class="nav-item" data-page="log">
+        <span class="nav-ico">☰</span><span class="nav-label">Log</span>
+      </button>
+      <button class="nav-item" data-page="subjects">
+        <span class="nav-ico">◇</span><span class="nav-label">Subjects</span>
+      </button>
+    </div>
+
+    <div class="nav-group nav-group-bottom">
+      <button class="nav-item" id="navDevTools" data-page="devtools" style="display:none;">
+        <span class="nav-ico">🛠</span><span class="nav-label">Dev Tools</span>
+      </button>
+      <button class="nav-item" data-page="admin">
+        <span class="nav-ico">⚙</span><span class="nav-label">Admin</span>
+      </button>
+      <div class="bottom-row">
+        <button class="theme-btn" id="themeToggle">☀</button>
+        <div class="id-tag" id="idTag" title="Your private anonymous ID">loading…</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ TELEPORT BANNER ============ -->
+  <div id="teleportBanner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:999; background:var(--amber); color:#241B07; text-align:center; padding:0.4rem 1rem; font-size:0.8rem; font-weight:500; cursor:pointer;">
+    👁 Viewing as <span id="teleportStudentId"></span> — click to exit
+  </div>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+
+    <!-- ---------- PAGE: TIMER ---------- -->
+    <section class="page active" id="page-timer">
+      <div class="page-head">
+        <h1>Timer</h1>
+        <p class="page-sub">Start a session whenever you're ready.</p>
+      </div>
+
+      <div class="hero">
+        <div class="hero-center">
+          <div class="ring-wrap">
+            <svg class="ring" viewBox="0 0 260 260">
+              <circle class="ring-track" cx="130" cy="130" r="118"></circle>
+              <circle class="ring-progress" id="ringProgress" cx="130" cy="130" r="118" stroke-dasharray="741.4" stroke-dashoffset="741.4"></circle>
+            </svg>
+            <div class="ring-center">
+              <div class="elapsed" id="elapsed">00:00:00</div>
+              <div class="subject-label" id="subjectLabel"></div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <select id="subjectSelect" aria-label="Subject"></select>
+            <button class="btn btn-start" id="startBtn">Start</button>
+            <button class="btn btn-pause" id="pauseBtn" disabled>Pause</button>
+            <button class="btn btn-stop" id="stopBtn" disabled>Stop</button>
+          </div>
+          <input class="note-input" id="noteInput" placeholder="What are you working on? (optional)" maxlength="80">
+          <div class="focus-hint" id="focusHint">Stay focused — tap Stop when you're done.</div>
+        </div>
+      </div>
+
+      <div class="stats stats-two stats-centered">
+        <div class="stat-card">
+          <div class="stat-label">Today</div>
+          <div class="stat-value" id="statToday">0h 0m</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Best Day</div>
+          <div class="stat-value" id="statBestDay">0h 0m</div>
+        </div>
+      </div>
+
+      <div class="breakdown">
+        <div class="section-head">
+          <div class="section-title">By subject</div>
+          <div class="section-sub">today</div>
+        </div>
+        <div id="breakdownList" class="donut-row"></div>
+      </div>
+    </section>
+
+    <!-- ---------- PAGE: ACTIVITY ---------- -->
+    <section class="page" id="page-activity">
+      <div class="page-head page-head-row">
+        <div>
+          <h1>Analytics</h1>
+          <p class="page-sub">Clear, simple numbers — how much you study, when, and how it's trending.</p>
+        </div>
+      </div>
+
+      <div class="streak-row">
+        <div class="stat-card">
+          <div class="stat-label">Current streak</div>
+          <div class="stat-value" id="streakCurrent">0 days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Longest streak</div>
+          <div class="stat-value" id="streakLongest">0 days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active days (1yr)</div>
+          <div class="stat-value" id="activeDaysCount">0</div>
+        </div>
+      </div>
+
+         <div class="heatmap-card">
+        <div class="section-head">
+          <div class="section-title">Study calendar</div>
+          <div class="section-sub" id="heatmapRange"></div>
+        </div>
+        <div class="heatmap-scroll">
+          <div id="heatmapMonths" class="heatmap-months"></div>
+          <div class="heatmap-body" id="heatmapBody">
+            <div id="heatmapDayLabels" class="heatmap-day-labels"></div>
+            <div id="heatmapGrid" class="heatmap-grid"></div>
+          </div>
+        </div>
+        <div class="heatmap-legend">
+          <span>Less</span>
+          <span class="legend-swatch l0"></span>
+          <span class="legend-swatch l1"></span>
+          <span class="legend-swatch l2"></span>
+          <span class="legend-swatch l3"></span>
+          <span class="legend-swatch l4"></span>
+          <span>More</span>
+        </div>
+      </div>
+
+      <!-- PACE CARD — now with week/month/year toggle -->
+      <div class="pace-card">
+        <div class="section-head">
+          <div class="section-title">Pace</div>
+          <div class="range-toggle" id="paceRangeToggle">
+            <button class="range-btn active" data-range="week">Week</button>
+            <button class="range-btn" data-range="month">Month</button>
+            <button class="range-btn" data-range="year">Year</button>
+          </div>
+        </div>
+        <div class="pace-grid">
+          <div class="pace-item">
+            <div class="pace-label">Daily average</div>
+            <div class="pace-value" id="paceDailyAvg">0h 0m</div>
+            <div class="pace-sub">on active days</div>
+          </div>
+          <div class="pace-item">
+            <div class="pace-label" id="paceCurrentLabel">This week</div>
+            <div class="pace-value" id="paceThisWeek">0h 0m</div>
+            <div class="pace-sub" id="paceWeekDelta">—</div>
+          </div>
+          <div class="pace-item">
+            <div class="pace-label" id="pacePreviousLabel">Last week</div>
+            <div class="pace-value" id="paceLastWeek">0h 0m</div>
+            <div class="pace-sub">for comparison</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bargraph-card">
+        <div class="section-head">
+          <div class="section-title">Study time</div>
+          <div class="range-toggle" id="rangeToggle">
+            <button class="range-btn active" data-range="week">Week</button>
+            <button class="range-btn" data-range="month">Month</button>
+            <button class="range-btn" data-range="year">Year</button>
+          </div>
+        </div>
+        <div class="section-sub" id="bargraphRangeLabel" style="margin-bottom:0.9rem;"></div>
+        <div id="bargraphChart" class="bargraph-chart"></div>
+      </div>
+
+      <div class="dow-card">
+        <div class="section-head">
+          <div class="section-title">Weekday pattern</div>
+          <div class="section-sub">average per weekday, all time</div>
+        </div>
+        <div id="dowChart" class="dow-chart"></div>
+      </div>
+
+
+      <div class="subject-compare-card">
+        <div class="section-head">
+          <div class="section-title">Who's winning</div>
+          <div class="range-toggle" id="subjectRangeToggle">
+            <button class="range-btn active" data-range="week">Week</button>
+            <button class="range-btn" data-range="month">Month</button>
+            <button class="range-btn" data-range="year">Year</button>
+          </div>
+        </div>
+        <div id="subjectCompareChart" class="bargraph-chart"></div>
+        <div id="subjectCompareLegend" class="subject-compare-legend"></div>
+      </div>
+
+      <div class="subject-detail-card">
+        <div class="section-head">
+          <div class="section-title">Subject deep dive</div>
+          <select id="subjectDetailSelect"></select>
+        </div>
+        <div id="subjectDetailLoading" class="subject-detail-loading">
+          <div class="loading-spinner"></div>
+          <div id="subjectDetailLoadingText" class="loading-text"></div>
+        </div>
+        <div id="subjectDetailContent" class="subject-detail-content"></div>
+      </div>
+
+      <!-- "By subject — all time" section REMOVED (change 1) -->
+
+      <button class="export-btn" id="exportBtn" title="Download report"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download report</button>
+
+    </section>
+
+    <!-- ---------- PAGE: LOG ---------- -->
+    <section class="page" id="page-log">
+      <div class="page-head page-head-row">
+        <div>
+          <h1>Session log</h1>
+          <p class="page-sub" id="logCount"></p>
+        </div>
+        <input class="log-search" id="logSearch" type="text" placeholder="Search log…">
+      </div>
+      <div class="log-list" id="logList"></div>
+    </section>
+
+    <!-- ---------- PAGE: SUBJECTS ---------- -->
+    <section class="page" id="page-subjects">
+      <div class="page-head">
+        <h1>Subjects</h1>
+        <p class="page-sub">Manage the subjects you study.</p>
+      </div>
+      <div class="add-subject-row">
+        <input id="newSubjectInput" placeholder="add a subject…" maxlength="24">
+        <button id="addSubjectBtn">+ add</button>
+      </div>
+      <div id="subjectsList" class="subjects-list"></div>
+    </section>
+
+    <!-- ---------- PAGE: ADMIN ---------- -->
+    <section class="page" id="page-admin">
+      <div class="page-head">
+        <h1>Admin</h1>
+        <p class="page-sub"></p>
+      </div>
+
+      <div id="adminLoginView">
+        <input class="note-input" id="adminEmail" type="email" placeholder="Admin email" style="margin-bottom:0.6rem; display:block;">
+        <input class="note-input" id="adminPassword" type="password" placeholder="Password" style="margin-bottom:0.6rem; display:block;">
+        <button class="btn" id="adminLoginBtn" style="display:block; margin:0 auto;">Sign in</button>
+        <div id="adminError" style="color:var(--danger); font-size:0.8rem; margin-top:0.6rem;"></div>
+      </div>
+
+      <div id="adminDashboard" style="display:none;">
+          <div class="section-head">
+            <div class="section-title">All students</div>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn" id="adminExportBtn" style="font-size:0.75rem; padding:0.4rem 0.8rem;">Export CSV</button>
+              <button class="btn" id="adminSignOutBtn" style="font-size:0.75rem; padding:0.4rem 0.8rem;">Sign out</button>
+            </div>
+          </div>
+          <div class="stats" style="margin-bottom:1.5rem;">
+            <div class="stat-card">
+              <div class="stat-label">Students</div>
+              <div class="stat-value" id="adminStudentCount">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Total hours logged</div>
+              <div class="stat-value" id="adminTotalHours">0h</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Active this week</div>
+              <div class="stat-value" id="adminActiveWeek">0</div>
+            </div>
+          </div>
+
+          <input class="log-search" id="adminRosterSearch" type="text" placeholder="Filter students…" style="margin-bottom:0.7rem;">
+          <div id="adminRosterList"></div>
+        <div id="adminDetailView" style="display:none; margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid var(--line);">
+          <div class="section-head">
+            <div class="section-title" id="adminDetailTitle">Student</div>
+            <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+              <button class="btn" id="adminTeleportBtn" style="font-size:0.7rem; padding:0.4rem 0.7rem;">👁 View as</button>
+              <button class="btn" id="adminResetBtn" style="font-size:0.7rem; padding:0.4rem 0.7rem; background:var(--danger); border-color:var(--danger); color:#fff;">Reset data</button>
+              <button class="btn" id="adminBackBtn" style="font-size:0.75rem; padding:0.4rem 0.8rem;">Back</button>
+            </div>
+          </div>
+          <div id="adminDetailAnomalies" style="margin-bottom:1rem;"></div>
+          <div id="adminDetailFunFact" style="margin-bottom:0.75rem; font-size:0.85rem; color:var(--text-dim); font-style:italic; text-align:center; padding:0.6rem; background:var(--paper); border:1px solid var(--line); border-radius:10px;"></div>
+          <div id="adminDetailTrend" class="breakdown" style="margin-bottom:1rem;"></div>
+          <div id="adminDetailBreakdown" class="breakdown"></div>
+          <div id="adminDetailLog" class="log-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- PAGE: DEV TOOLS (only reachable after admin sign-in) ---------- -->
+    <section class="page" id="page-devtools">
+      <div class="page-head">
+        <h1>Dev Tools</h1>
+        <p class="page-sub"></p>
+      </div>
+
+      <div class="dev-card">
+        <div style="font-size:0.75rem; color:var(--text-faint); font-weight:500; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:0.25rem;">Fake history</div>
+        <label class="dev-label">Days of fake history
+          <input type="number" id="devDays" value="30" min="1" max="365">
+        </label>
+        <label class="dev-label">Sessions per active day (avg)
+          <input type="number" id="devSessionsPerDay" value="2" min="1" max="6">
+        </label>
+        <label class="dev-label">Chance a day has any activity
+          <input type="number" id="devActiveChance" value="70" min="1" max="100"> %
+        </label>
+        <button id="devGenerateBtn" class="btn btn-start" style="margin-top:0.5rem;">Generate fake history</button>
+        <button id="devAddTodayBtn" class="btn">+ Add one random session today</button>
+        <button id="devClearBtn" class="btn btn-stop">Clear all my data</button>
+        <div id="devStatus" class="dev-status"></div>
+      </div>
+
+      <div class="dev-card">
+        <div style="font-size:0.75rem; color:var(--text-faint); font-weight:500; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:0.25rem;">Midnight split tester</div>
+        <label class="dev-label">Session starts (hrs before midnight)
+          <input type="number" id="devSplitHrsBefore" value="2" min="0.1" max="23" step="0.5">
+        </label>
+        <label class="dev-label">Session duration (minutes)
+          <input type="number" id="devSplitDuration" value="180" min="1" max="1440">
+        </label>
+        <button id="devSplitTestBtn" class="btn" style="border-color:var(--sage); color:var(--sage);">+ Inject midnight-crossing session</button>
+        <div id="devSplitResult" class="dev-split-result"></div>
+      </div>
+
+      <div class="dev-card">
+        <div style="font-size:0.75rem; color:var(--text-faint); font-weight:500; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:0.25rem;">Break reminder tester</div>
+        <div style="font-size:0.78rem; color:var(--text-dim); line-height:1.5;">
+          Advance the running/paused timer by 1h 59m 50s — ring fills almost full, break notification fires in 10s.
+        </div>
+        <button id="devBreakTestBtn" class="btn" style="border-color:var(--amber); color:var(--amber);" disabled>⏱ Advance timer</button>
+        <div id="devBreakStatus" class="dev-status"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div id="breakOverlay" class="break-overlay">
+  <div class="break-card">
+    <div class="break-countdown">
+      <svg viewBox="0 0 60 60">
+        <circle class="cd-track" cx="30" cy="30" r="26"/>
+        <circle class="cd-progress" id="cdProgress" cx="30" cy="30" r="26" stroke-dasharray="163.36" stroke-dashoffset="0"/>
+      </svg>
+      <span class="cd-text" id="cdText">60</span>
+    </div>
+    <div class="break-body">
+      <h3>Time for a break!</h3>
+      <p>You've been studying for 2 hours. Take a rest and hydrate.</p>
+    </div>
+    <div class="break-actions">
+      <button class="btn btn-dismiss" id="breakDismiss">Dismiss</button>
+      <button class="btn btn-rest" id="breakRest">Take Rest</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
