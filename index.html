@@ -49,11 +49,6 @@
     </div>
   </nav>
 
-  <!-- ============ TELEPORT BANNER ============ -->
-  <div id="teleportBanner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:999; background:var(--amber); color:#241B07; text-align:center; padding:0.4rem 1rem; font-size:0.8rem; font-weight:500; cursor:pointer;">
-    👁 Viewing as <span id="teleportStudentId"></span> — click to exit
-  </div>
-
   <!-- ============ MAIN ============ -->
   <main class="main">
 
@@ -305,13 +300,10 @@
           <div class="section-head">
             <div class="section-title" id="adminDetailTitle">Student</div>
             <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-              <button class="btn" id="adminTeleportBtn" style="font-size:0.7rem; padding:0.4rem 0.7rem;">👁 View as</button>
               <button class="btn" id="adminResetBtn" style="font-size:0.7rem; padding:0.4rem 0.7rem; background:var(--danger); border-color:var(--danger); color:#fff;">Reset data</button>
               <button class="btn" id="adminBackBtn" style="font-size:0.75rem; padding:0.4rem 0.8rem;">Back</button>
             </div>
           </div>
-          <div id="adminDetailAnomalies" style="margin-bottom:1rem;"></div>
-          <div id="adminDetailFunFact" style="margin-bottom:0.75rem; font-size:0.85rem; color:var(--text-dim); font-style:italic; text-align:center; padding:0.6rem; background:var(--paper); border:1px solid var(--line); border-radius:10px;"></div>
           <div id="adminDetailTrend" class="breakdown" style="margin-bottom:1rem;"></div>
           <div id="adminDetailBreakdown" class="breakdown"></div>
           <div id="adminDetailLog" class="log-list"></div>
