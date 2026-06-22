@@ -1682,41 +1682,6 @@ const firebaseConfig = {
     }
   });
 
-  const teleportBanner = document.getElementById('teleportBanner');
-  const teleportStudentId = document.getElementById('teleportStudentId');
-
-  document.getElementById('adminTeleportBtn').addEventListener('click', ()=>{
-    const titleEl = document.getElementById('adminDetailTitle');
-    const studentId = titleEl.getAttribute('data-student');
-    if(!studentId) return;
-    const originalId = localStorage.getItem('focus_user_id');
-    if(studentId === originalId){
-      alert('You are already viewing this account.');
-      return;
-    }
-    localStorage.setItem('admin_original_id', originalId);
-    myId = studentId;
-    localStorage.setItem('focus_user_id', studentId);
-    document.getElementById('idTag').textContent = studentId;
-    teleportStudentId.textContent = studentId;
-    teleportBanner.style.display = 'block';
-    detailView.style.display = 'none';
-    rosterList.style.display = 'block';
-    document.querySelector('.nav-item[data-page="timer"]').click();
-    loadState();
-  });
-
-  teleportBanner.addEventListener('click', ()=>{
-    const originalId = localStorage.getItem('admin_original_id');
-    if(!originalId) return;
-    myId = originalId;
-    localStorage.setItem('focus_user_id', originalId);
-    document.getElementById('idTag').textContent = originalId;
-    teleportBanner.style.display = 'none';
-    localStorage.removeItem('admin_original_id');
-    loadState();
-  });
-
   let allRosterRows = [];
   const adminAliases = JSON.parse(localStorage.getItem('admin_aliases') || '{}');
   function saveAliases(){ localStorage.setItem('admin_aliases', JSON.stringify(adminAliases)); }
@@ -1993,62 +1958,6 @@ const firebaseConfig = {
     detailView.style.display = 'block';
 
     const sessions = data.sessions || [];
-
-    // fun fact
-    const factEl = document.getElementById('adminDetailFunFact');
-    const totalH = sessions.reduce((s,se)=>s+(se.durationMs||0),0)/3600000;
-    const subjCount = new Set(sessions.map(s=>s.subject)).size;
-    const facts = [];
-    if(totalH > 0){
-      facts.push(`Studied <strong>${totalH.toFixed(1)} hours</strong> total`);
-      facts.push(`logged <strong>${sessions.length}</strong> sessions`);
-      facts.push(`across <strong>${subjCount}</strong> subject${subjCount!==1?'s':''}`);
-      const avg = totalH / sessions.length * 60;
-      facts.push(`averaging <strong>${Math.round(avg)} min</strong> per session`);
-      const days = new Set(sessions.filter(s=>s.endedAt).map(s=>new Date(s.endedAt).toLocaleDateString())).size;
-      facts.push(`over <strong>${days}</strong> day${days!==1?'s':''}`);
-      const topSubj = Object.entries(sessions.reduce((acc,s)=>{acc[s.subject]=(acc[s.subject]||0)+(s.durationMs||0);return acc;},{}))
-        .sort((a,b)=>b[1]-a[1])[0];
-      if(topSubj) facts.push(`favourite subject: <strong>${escapeHtml(topSubj[0])}</strong> (${fmtHrMin(topSubj[1])})`);
-      factEl.innerHTML = '✨ ' + facts.join(' · ') + ' ✨';
-    }else{
-      factEl.innerHTML = '🌱 No sessions yet — the journey begins.';
-    }
-
-    // anomalies
-    const anomaliesEl = document.getElementById('adminDetailAnomalies');
-    const flags = [];
-    sessions.forEach(s=>{
-      const durMs = s.durationMs||0;
-      if(durMs > 8*3600*1000){
-        const d = new Date(s.endedAt);
-        flags.push(`<span class="anomaly-flag">⚠️ ${escapeHtml(s.subject)} — ${fmtHrMin(durMs)} on ${d.toLocaleDateString([], {month:'short', day:'numeric'})} (over 8h)</span>`);
-      }
-      if(s.endedAt){
-        const h = new Date(s.endedAt).getHours();
-        if(h >= 0 && h < 5){
-          const d = new Date(s.endedAt);
-          flags.push(`<span class="anomaly-flag">🌙 ${escapeHtml(s.subject)} at ${new Date(s.endedAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} on ${d.toLocaleDateString([], {month:'short', day:'numeric'})} (midnight session)</span>`);
-        }
-      }
-    });
-    const dayCounts = {};
-    sessions.forEach(s=>{
-      if(s.endedAt){
-        const day = new Date(s.endedAt).toLocaleDateString();
-        dayCounts[day] = (dayCounts[day]||0) + 1;
-      }
-    });
-    Object.entries(dayCounts).forEach(([day,count])=>{
-      if(count > 15){
-        flags.push(`<span class="anomaly-flag">📊 ${count} sessions on ${day} (unusually many)</span>`);
-      }
-    });
-    if(flags.length){
-      anomaliesEl.innerHTML = '<div style="font-size:0.75rem; font-weight:500; letter-spacing:0.04em; text-transform:uppercase; color:var(--amber); margin-bottom:0.3rem;">Flags</div>' + flags.join('');
-    }else{
-      anomaliesEl.innerHTML = '';
-    }
 
     // weekly trend (last 12 weeks)
     const trendEl = document.getElementById('adminDetailTrend');
