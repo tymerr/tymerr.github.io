@@ -918,3 +918,74 @@
     font-size:0.7rem; color:#5C6470; font-style:italic;
     padding:0.2rem 0; text-align:center;
   }
+
+  /* ============ EXAM COUNTDOWN ============ */
+  .exam-add-btn{font-size:0.78rem; padding:0.45rem 0.9rem; flex-shrink:0;}
+  .exam-countdown-strip{
+    display:flex; gap:0.6rem; overflow-x:auto; padding:0.3rem 0;
+    margin:1.25rem auto 0; max-width:100%; scrollbar-width:thin;
+  }
+  .exam-countdown-strip::-webkit-scrollbar{height:3px;}
+  .exam-countdown-strip::-webkit-scrollbar-thumb{background:#3A3F48; border-radius:3px;}
+  .exam-countdown-strip:empty{display:none;}
+  .ecc-card{
+    display:flex; align-items:center; gap:0.5rem; flex:1; min-width:0;
+    background:var(--paper); border:1px solid var(--line); border-radius:10px;
+    padding:0.4rem 0.6rem 0.4rem 0; overflow:hidden;
+  }
+  .ecc-banner{
+    width:52px; height:52px; flex-shrink:0;
+    background-size:cover; background-position:center; border-radius:50%; margin:0 0 0 0.5rem;
+  }
+  .ecc-body{padding:0.1rem 0; flex:1; min-width:0;}
+  .ecc-name{
+    font-size:0.65rem; color:var(--text-faint); text-transform:uppercase;
+    letter-spacing:0.04em; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .ecc-days{
+    font-family:'Spectral', serif; font-size:1.1rem; font-weight:600; color:var(--amber);
+    line-height:1.15;
+  }
+  .ecc-sub{font-size:0.6rem; color:var(--text-faint);}
+  .ecc-clear{
+    background:none; border:none; color:var(--text-faint); cursor:pointer;
+    font-size:0.65rem; padding:0.2rem 0.3rem; line-height:1; flex-shrink:0;
+  }
+  .ecc-clear:hover{color:var(--danger);}
+  body.focus-mode .exam-countdown-strip{
+    position:fixed; right:1.25rem; top:50%; transform:translateY(-50%); z-index:99;
+    flex-direction:column; gap:0.5rem; margin:0; padding:0; max-width:220px;
+    overflow-y:auto; overflow-x:hidden; max-height:60vh;
+  }
+  body.focus-mode .exam-countdown-strip::-webkit-scrollbar{width:3px;}
+  body.focus-mode .exam-countdown-strip::-webkit-scrollbar-thumb{background:#3A3F48; border-radius:3px;}
+  body.focus-mode .ecc-card{flex:none; width:100%;}
+
+  /* ============ EXAM MODAL ============ */
+  .exam-modal-overlay{
+    position:fixed; inset:0; z-index:9998; background:rgba(0,0,0,0.55);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity 0.25s ease;
+  }
+  .exam-modal-overlay.visible{opacity:1; pointer-events:auto;}
+  .exam-modal-card{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:14px;
+    padding:0; width:90%; max-width:380px; overflow:hidden;
+    transform:scale(0.92) translateY(16px);
+    transition:transform 0.3s cubic-bezier(.34,1.2,.4,1);
+  }
+  .exam-modal-overlay.visible .exam-modal-card{transform:scale(1) translateY(0);}
+  .exam-modal-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0.85rem 1.1rem; border-bottom:1px solid var(--line);
+    font-family:'Spectral', serif; font-size:1rem; font-weight:600;
+  }
+  .exam-modal-head button{
+    background:none; border:none; color:var(--text-faint); cursor:pointer; font-size:0.9rem;
+  }
+  .exam-modal-head button:hover{color:var(--danger);}
+  .exam-modal-body{padding:1.1rem;}
+  .exam-field-label{
+    display:block; font-size:0.7rem; color:var(--text-faint); text-transform:uppercase;
+    letter-spacing:0.05em; margin-bottom:0.35rem; font-weight:500;
+  }
