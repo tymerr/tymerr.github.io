@@ -39,7 +39,7 @@
     </div>
 
     <div class="nav-group nav-group-bottom">
-      <button class="nav-item" id="navDevTools" data-page="devtools" style="display:none;">
+      <button class="nav-item" id="navDevTools" data-page="devtools">
         <span class="nav-ico">🛠</span><span class="nav-label">Dev Tools</span>
       </button>
       <button class="nav-item" data-page="admin">
@@ -112,6 +112,8 @@
         </div>
         <div class="sn-body" id="snBody"></div>
       </aside>
+
+      <div class="exam-countdown-strip" id="examCountdownStrip"></div>
     </section>
 
     <!-- ---------- PAGE: ACTIVITY ---------- -->
@@ -243,11 +245,39 @@
 
     </section>
 
-     <!-- ---------- PAGE: PLANNER ---------- -->
-    <section class="page" id="page-planner">
+    <!-- ---------- PAGE: LOG ---------- -->
+    <section class="page" id="page-log">
+      <div class="page-head page-head-row">
+        <div>
+          <h1>Session log</h1>
+          <p class="page-sub" id="logCount"></p>
+        </div>
+        <input class="log-search" id="logSearch" type="text" placeholder="Search log…">
+      </div>
+      <div class="log-list" id="logList"></div>
+    </section>
+
+    <!-- ---------- PAGE: SUBJECTS ---------- -->
+    <section class="page" id="page-subjects">
       <div class="page-head">
-        <h1>Planner</h1>
-        <p class="page-sub">Plan your daily goals.</p>
+        <h1>Subjects</h1>
+        <p class="page-sub">Manage the subjects you study.</p>
+      </div>
+      <div class="add-subject-row">
+        <input id="newSubjectInput" placeholder="add a subject…" maxlength="24">
+        <button id="addSubjectBtn">+ add</button>
+      </div>
+      <div id="subjectsList" class="subjects-list"></div>
+    </section>
+
+    <!-- ---------- PAGE: PLANNER ---------- -->
+    <section class="page" id="page-planner">
+      <div class="page-head page-head-row">
+        <div>
+          <h1>Planner</h1>
+          <p class="page-sub">Plan your daily goals.</p>
+        </div>
+        <button class="btn exam-add-btn" id="examAddBtn">+ Add exam</button>
       </div>
 
       <div class="p-day-strip" id="pDayStrip"></div>
@@ -275,33 +305,6 @@
         <button class="p-carry-btn" id="pCarryBtn">Carry forward →</button>
       </div>
     </section>
-
-    <!-- ---------- PAGE: LOG ---------- -->
-    <section class="page" id="page-log">
-      <div class="page-head page-head-row">
-        <div>
-          <h1>Session log</h1>
-          <p class="page-sub" id="logCount"></p>
-        </div>
-        <input class="log-search" id="logSearch" type="text" placeholder="Search log…">
-      </div>
-      <div class="log-list" id="logList"></div>
-    </section>
-
-    <!-- ---------- PAGE: SUBJECTS ---------- -->
-    <section class="page" id="page-subjects">
-      <div class="page-head">
-        <h1>Subjects</h1>
-        <p class="page-sub">Manage the subjects you study.</p>
-      </div>
-      <div class="add-subject-row">
-        <input id="newSubjectInput" placeholder="add a subject…" maxlength="24">
-        <button id="addSubjectBtn">+ add</button>
-      </div>
-      <div id="subjectsList" class="subjects-list"></div>
-    </section>
-
-   
 
     <!-- ---------- PAGE: ADMIN ---------- -->
     <section class="page" id="page-admin">
@@ -401,6 +404,21 @@
         <button id="devBreakTestBtn" class="btn" style="border-color:var(--amber); color:var(--amber);" disabled>⏱ Advance timer</button>
         <div id="devBreakStatus" class="dev-status"></div>
       </div>
+
+      <div class="dev-card">
+        <div style="font-size:0.75rem; color:var(--text-faint); font-weight:500; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:0.25rem;">Time travel</div>
+        <div style="font-size:0.78rem; color:var(--text-dim); line-height:1.5; margin-bottom:0.5rem;">
+          Set a virtual date to test planner, sticky note, and exam countdown.
+        </div>
+        <label class="dev-label">Virtual date
+          <input type="date" id="devVirtualDate">
+        </label>
+        <div style="display:flex; gap:0.4rem; margin-top:0.5rem;">
+          <button id="devTimeApplyBtn" class="btn btn-start">Apply</button>
+          <button id="devTimeResetBtn" class="btn" style="border-color:var(--sage); color:var(--sage);">Reset to real time</button>
+        </div>
+        <div id="devTimeStatus" class="dev-status"></div>
+      </div>
     </section>
 
   </main>
@@ -427,6 +445,27 @@
 </div>
 
 <div id="toastContainer"></div>
+
+<div id="examModal" class="exam-modal-overlay">
+  <div class="exam-modal-card">
+    <div class="exam-modal-head">
+      <span>Add exam</span>
+      <button id="examModalClose">✕</button>
+    </div>
+    <div class="exam-modal-body">
+      <label class="exam-field-label">Exam name</label>
+      <input class="note-input" id="examName" placeholder="e.g. JEE Advanced 2026" maxlength="40" style="max-width:100%; margin:0 0 0.9rem;">
+      <label class="exam-field-label">Exam date</label>
+      <input class="note-input" id="examDate" type="date" style="max-width:100%; margin:0 0 0.9rem;">
+      <label class="exam-field-label">Banner image URL <span style="color:var(--text-faint); font-weight:400;">(optional)</span></label>
+      <input class="note-input" id="examBanner" placeholder="https://…" style="max-width:100%; margin:0 0 1.1rem;">
+      <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+        <button class="btn" id="examModalCancel">Cancel</button>
+        <button class="btn btn-start" id="examModalSave">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script type="module" src="script.js"></script>
 </body>
