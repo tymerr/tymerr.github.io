@@ -27,14 +27,14 @@
       <button class="nav-item" data-page="activity">
         <span class="nav-ico">▦</span><span class="nav-label">Analytics</span>
       </button>
+      <button class="nav-item" data-page="planner">
+        <span class="nav-ico">☑</span><span class="nav-label">Planner</span>
+      </button>
       <button class="nav-item" data-page="log">
         <span class="nav-ico">☰</span><span class="nav-label">Log</span>
       </button>
       <button class="nav-item" data-page="subjects">
         <span class="nav-ico">◇</span><span class="nav-label">Subjects</span>
-      </button>
-      <button class="nav-item" data-page="planner">
-        <span class="nav-ico">☑</span><span class="nav-label">Planner</span>
       </button>
     </div>
 
@@ -245,31 +245,6 @@
 
     </section>
 
-    <!-- ---------- PAGE: LOG ---------- -->
-    <section class="page" id="page-log">
-      <div class="page-head page-head-row">
-        <div>
-          <h1>Session log</h1>
-          <p class="page-sub" id="logCount"></p>
-        </div>
-        <input class="log-search" id="logSearch" type="text" placeholder="Search log…">
-      </div>
-      <div class="log-list" id="logList"></div>
-    </section>
-
-    <!-- ---------- PAGE: SUBJECTS ---------- -->
-    <section class="page" id="page-subjects">
-      <div class="page-head">
-        <h1>Subjects</h1>
-        <p class="page-sub">Manage the subjects you study.</p>
-      </div>
-      <div class="add-subject-row">
-        <input id="newSubjectInput" placeholder="add a subject…" maxlength="24">
-        <button id="addSubjectBtn">+ add</button>
-      </div>
-      <div id="subjectsList" class="subjects-list"></div>
-    </section>
-
     <!-- ---------- PAGE: PLANNER ---------- -->
     <section class="page" id="page-planner">
       <div class="page-head page-head-row">
@@ -304,6 +279,31 @@
         <div class="p-carry-text" id="pCarryText"></div>
         <button class="p-carry-btn" id="pCarryBtn">Carry forward →</button>
       </div>
+    </section>
+
+    <!-- ---------- PAGE: LOG ---------- -->
+    <section class="page" id="page-log">
+      <div class="page-head page-head-row">
+        <div>
+          <h1>Session log</h1>
+          <p class="page-sub" id="logCount"></p>
+        </div>
+        <input class="log-search" id="logSearch" type="text" placeholder="Search log…">
+      </div>
+      <div class="log-list" id="logList"></div>
+    </section>
+
+    <!-- ---------- PAGE: SUBJECTS ---------- -->
+    <section class="page" id="page-subjects">
+      <div class="page-head">
+        <h1>Subjects</h1>
+        <p class="page-sub">Manage the subjects you study.</p>
+      </div>
+      <div class="add-subject-row">
+        <input id="newSubjectInput" placeholder="add a subject…" maxlength="24">
+        <button id="addSubjectBtn">+ add</button>
+      </div>
+      <div id="subjectsList" class="subjects-list"></div>
     </section>
 
     <!-- ---------- PAGE: ADMIN ---------- -->
