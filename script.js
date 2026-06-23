@@ -1223,6 +1223,121 @@ const firebaseConfig = {
     document.addEventListener('mouseup', () => { dragging = false; });
   })();
 
+  // ============================================================
+  // EXAM COUNTDOWN
+  // ============================================================
+  (function(){
+    const EXAM_KEY = 'focus_exams';
+
+    function loadExams(){
+      try{ return JSON.parse(localStorage.getItem(EXAM_KEY)) || []; }catch(e){ return []; }
+    }
+    function saveExams(arr){
+      localStorage.setItem(EXAM_KEY, JSON.stringify(arr));
+    }
+
+    function renderCountdown(){
+      const strip = document.getElementById('examCountdownStrip');
+      const exams = loadExams();
+      if(!exams.length){ strip.style.display='none'; return; }
+
+      strip.style.display = 'flex';
+      strip.innerHTML = '';
+
+      exams.forEach((exam, idx) => {
+        const now = new Date();
+        const target = new Date(exam.date + 'T00:00:00');
+        const diffMs = target - now;
+        const diffDays = Math.ceil(diffMs / (1000*60*60*24));
+
+        const card = document.createElement('div');
+        card.className = 'ecc-card';
+
+        const banner = document.createElement('div');
+        banner.className = 'ecc-banner';
+        if(exam.banner){
+          banner.style.display = 'block';
+          banner.style.backgroundImage = 'url(' + exam.banner + ')';
+        } else {
+          banner.style.display = 'none';
+        }
+        card.appendChild(banner);
+
+        const body = document.createElement('div');
+        body.className = 'ecc-body';
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'ecc-name';
+        nameEl.textContent = exam.name || 'Exam';
+        body.appendChild(nameEl);
+
+        const daysEl = document.createElement('div');
+        daysEl.className = 'ecc-days';
+
+        const subEl = document.createElement('div');
+        subEl.className = 'ecc-sub';
+
+        if(diffDays < 0){
+          daysEl.textContent = 'Completed';
+          subEl.textContent = exam.date;
+        } else if(diffDays === 0){
+          daysEl.textContent = 'Today!';
+          subEl.textContent = 'Good luck';
+        } else {
+          daysEl.textContent = diffDays + (diffDays === 1 ? ' day' : ' days');
+          subEl.textContent = target.toLocaleDateString([], {month:'short', day:'numeric', year:'numeric'});
+        }
+        body.appendChild(daysEl);
+        body.appendChild(subEl);
+        card.appendChild(body);
+
+        const clear = document.createElement('button');
+        clear.className = 'ecc-clear';
+        clear.textContent = '✕';
+        clear.addEventListener('click', () => {
+          exams.splice(idx, 1);
+          saveExams(exams);
+          renderCountdown();
+        });
+        card.appendChild(clear);
+
+        strip.appendChild(card);
+      });
+    }
+
+    document.getElementById('examAddBtn').addEventListener('click', ()=>{
+      document.getElementById('examName').value = '';
+      document.getElementById('examDate').value = '';
+      document.getElementById('examBanner').value = '';
+      document.getElementById('examModal').classList.add('visible');
+    });
+
+    function closeModal(){
+      document.getElementById('examModal').classList.remove('visible');
+    }
+
+    document.getElementById('examModalClose').addEventListener('click', closeModal);
+    document.getElementById('examModalCancel').addEventListener('click', closeModal);
+    document.getElementById('examModal').addEventListener('click', e=>{
+      if(e.target === document.getElementById('examModal')) closeModal();
+    });
+
+    document.getElementById('examModalSave').addEventListener('click', ()=>{
+      const name = document.getElementById('examName').value.trim();
+      const date = document.getElementById('examDate').value;
+      const banner = document.getElementById('examBanner').value.trim();
+      if(!name || !date) return;
+      const exams = loadExams();
+      exams.push({ name, date, banner });
+      saveExams(exams);
+      closeModal();
+      renderCountdown();
+    });
+
+    window.__renderExamCountdown = renderCountdown;
+    renderCountdown();
+  })();
+
   function computeDayTotals(){
     const totals = {};
     state.sessions.forEach(s=>{
@@ -1928,6 +2043,64 @@ const firebaseConfig = {
       queueSave();
       statusEl.textContent = 'Timer advanced by 1h 59m 50s — ring should be near full.';
     });
+
+    // Time travel
+    (function(){
+      const _origDateNow = Date.now;
+      let _offset = 0;
+      const _Date = window.Date;
+
+      function applyOffset(ms){
+        _offset = ms;
+        Date.now = function(){ return _origDateNow() + _offset; };
+        const P = function Date(...a){
+          if(a.length === 0) return new _Date(Date.now());
+          return new _Date(...a);
+        };
+        P.prototype = _Date.prototype;
+        P.now = Date.now;
+        P.UTC = _Date.UTC;
+        P.parse = _Date.parse;
+        window.Date = P;
+      }
+
+      function resetTime(){
+        _offset = 0;
+        Date.now = _origDateNow;
+        window.Date = _Date;
+      }
+
+      const virtualInput = document.getElementById('devVirtualDate');
+      const applyBtn = document.getElementById('devTimeApplyBtn');
+      const resetBtn = document.getElementById('devTimeResetBtn');
+      const statusEl = document.getElementById('devTimeStatus');
+
+      if(virtualInput){
+        // Default to today
+        virtualInput.value = new Date().toISOString().slice(0,10);
+
+        applyBtn.addEventListener('click', ()=>{
+          if(!virtualInput.value){
+            statusEl.textContent = 'Pick a date first.';
+            return;
+          }
+          const target = new Date(virtualInput.value + 'T12:00:00').getTime();
+          const now = _origDateNow();
+          applyOffset(target - now);
+          statusEl.textContent = 'Virtual date: ' + virtualInput.value + '  (refresh page to clear)';
+          renderAll();
+          if(window.__renderExamCountdown) window.__renderExamCountdown();
+        });
+
+        resetBtn.addEventListener('click', ()=>{
+          resetTime();
+          statusEl.textContent = 'Reset to real time.';
+          virtualInput.value = new Date().toISOString().slice(0,10);
+          renderAll();
+          if(window.__renderExamCountdown) window.__renderExamCountdown();
+        });
+      }
+    })();
   })();
 
   loadState();
@@ -2026,12 +2199,10 @@ const firebaseConfig = {
   });
 
   onAuthStateChanged(auth, (user)=>{
-    const devNavItem = document.getElementById('navDevTools');
     if(user){
       loginView.style.display = 'none';
       dashboard.style.display = 'block';
       loadRoster();
-      devNavItem.style.display = 'flex';
     }else{
       loginView.style.display = 'block';
       dashboard.style.display = 'none';
