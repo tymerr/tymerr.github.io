@@ -2199,10 +2199,12 @@ const firebaseConfig = {
   });
 
   onAuthStateChanged(auth, (user)=>{
+    const devNavItem = document.getElementById('navDevTools');
     if(user){
       loginView.style.display = 'none';
       dashboard.style.display = 'block';
       loadRoster();
+      devNavItem.style.display = 'flex';
     }else{
       loginView.style.display = 'block';
       dashboard.style.display = 'none';
