@@ -129,7 +129,8 @@ const firebaseConfig = {
     subjects: DEFAULT_SUBJECTS.slice(),
     sessions: [],
     timer: { running:false, paused:false, subject: null, startedAt:null, elapsedBeforePause:0 },
-    lastBreakReminder: 0
+    lastBreakReminder: 0,
+    pGoals: {}
   };
 
   let tickHandle = null;
@@ -232,6 +233,7 @@ const firebaseConfig = {
         state = Object.assign(state, data);
         if(!state.subjects) state.subjects = [];
         if(!state.subjectColors) state.subjectColors = {};
+        if(!state.pGoals) state.pGoals = {};
       }
     }catch(e){
       console.error('Could not load saved data — check your Firebase config.', e);
@@ -260,10 +262,21 @@ const firebaseConfig = {
     scheduleMidnightRefresh();
   }
 
+  function pruneGoals(){
+    const today = startOfDay(Date.now());
+    const min = today - 3 * DAY_MS;
+    const max = today + 3 * DAY_MS;
+    Object.keys(state.pGoals).forEach(k => {
+      const ts = Number(k);
+      if(ts < min || ts > max) delete state.pGoals[k];
+    });
+  }
+
   function queueSave(){
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(async ()=>{
       try{
+        pruneGoals();
         await storage.set(myId, state);
       }catch(e){
         console.error('Save failed — check your Firebase config and security rules.', e);
@@ -923,8 +936,293 @@ const firebaseConfig = {
   window.addEventListener('focus:render-subjects', renderSubjectsPage);
 
   // ============================================================
-  // ANALYTICS PAGE — heatmap, streaks, pace, bar graph, weekday pattern
+  // PLANNER
   // ============================================================
+  let pSelectedDay = startOfDay(Date.now());
+
+  function pUid(){
+    return 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  }
+
+  function renderStickyNote(){
+    const body = document.getElementById('snBody');
+    if(!body) return;
+    const today = startOfDay(Date.now());
+    const goals = state.pGoals[today] || [];
+    body.innerHTML = '';
+    if(!goals.length){
+      body.innerHTML = '<div class="sn-empty">Nothing planned</div>';
+      return;
+    }
+    goals.forEach(g => {
+      const row = document.createElement('div');
+      row.className = 'sn-item';
+
+      const cb = document.createElement('div');
+      cb.className = 'sn-cb' + (g.done ? ' checked' : '');
+      cb.addEventListener('click', () => {
+        g.done = !g.done;
+        renderStickyNote();
+        renderGoals();
+        renderChips();
+        queueSave();
+        renderCarryForward();
+      });
+
+      const txt = document.createElement('span');
+      txt.className = 'sn-text' + (g.done ? ' done' : '');
+      txt.textContent = g.text;
+
+      row.appendChild(cb);
+      row.appendChild(txt);
+      body.appendChild(row);
+    });
+  }
+
+  function renderPlanner(){
+    const subjSel = document.getElementById('pSubjectSelect');
+    if(subjSel){
+      subjSel.innerHTML = '<option value="">Subject</option>';
+      (state.subjects || []).forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s; opt.textContent = s;
+        subjSel.appendChild(opt);
+      });
+    }
+    renderChips();
+    renderGoals();
+    renderStickyNote();
+    renderCarryForward();
+  }
+
+  function renderChips(){
+    const strip = document.getElementById('pDayStrip');
+    if(!strip) return;
+    strip.innerHTML = '';
+    const today = startOfDay(Date.now());
+    const dowShort = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    for(let offset = -3; offset <= 3; offset++){
+      const ts = today + offset * 86400000;
+      const d = new Date(ts);
+      const isToday = offset === 0;
+      const isActive = ts === pSelectedDay;
+      const goals = state.pGoals[ts] || [];
+      const hasGoals = goals.length > 0;
+
+      const chip = document.createElement('div');
+      chip.className = 'p-chip' + (isToday ? ' today' : '') + (isActive ? ' active' : '');
+      chip.innerHTML = `
+        <div class="cdow">${dowShort[d.getDay()]}</div>
+        <div class="cnum">${d.getDate()}</div>
+        ${isToday ? '<div class="ctoday">today</div>' : `<div class="cdot${hasGoals ? ' has' : ''}"></div>`}
+      `;
+      chip.addEventListener('click', () => {
+        pSelectedDay = ts;
+        renderChips();
+        renderGoals();
+        renderCarryForward();
+      });
+      strip.appendChild(chip);
+    }
+  }
+
+  function renderGoals(){
+    const list = document.getElementById('pGoalList');
+    const title = document.getElementById('pGoalsTitle');
+    const fill = document.getElementById('pProgressFill');
+    const label = document.getElementById('pProgressLabel');
+    if(!list || !title) return;
+
+    const d = new Date(pSelectedDay);
+    const dowNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    title.textContent = dowNames[d.getDay()] + ', ' + d.toLocaleDateString([], {month:'long', day:'numeric'});
+
+    const goals = state.pGoals[pSelectedDay] || [];
+    const done = goals.filter(g => g.done).length;
+    const total = goals.length;
+    const pct = total ? (done / total) * 100 : 0;
+    if(fill) fill.style.width = pct + '%';
+    if(label) label.textContent = done + ' / ' + total + ' done';
+
+    list.innerHTML = '';
+    if(!goals.length){
+      const empty = document.createElement('div');
+      empty.className = 'p-goal-empty';
+      empty.textContent = 'No goals for this day.';
+      list.appendChild(empty);
+    } else {
+      goals.forEach(g => {
+        const row = document.createElement('div');
+        row.className = 'p-goal';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.className = 'gcb';
+        cb.checked = g.done;
+        cb.addEventListener('change', () => {
+          g.done = cb.checked;
+          state.pGoals[pSelectedDay] = goals;
+          renderGoals();
+          renderChips();
+          renderStickyNote();
+          queueSave();
+          renderCarryForward();
+        });
+
+        const txt = document.createElement('div');
+        txt.className = 'gtxt' + (g.done ? ' done' : '');
+        txt.textContent = g.text;
+
+        const sub = document.createElement('span');
+        if(g.subject){
+          sub.className = 'gsub';
+          sub.textContent = g.subject;
+        }
+
+        const del = document.createElement('button');
+        del.className = 'gdel';
+        del.textContent = '✕';
+        del.addEventListener('click', () => {
+          state.pGoals[pSelectedDay] = goals.filter(x => x.id !== g.id);
+          if(!state.pGoals[pSelectedDay].length) delete state.pGoals[pSelectedDay];
+          queueSave();
+          renderPlanner();
+        });
+
+        row.appendChild(cb);
+        row.appendChild(txt);
+        if(g.subject) row.appendChild(sub);
+        row.appendChild(del);
+        list.appendChild(row);
+      });
+    }
+  }
+
+
+
+  function renderCarryForward(){
+    const card = document.getElementById('pCarryCard');
+    const text = document.getElementById('pCarryText');
+    const btn = document.getElementById('pCarryBtn');
+    if(!card || !text || !btn) return;
+
+    const today = startOfDay(Date.now());
+    const yesterday = today - 86400000;
+    const yesterdayGoals = state.pGoals[yesterday] || [];
+    const incomplete = yesterdayGoals.filter(g => !g.done);
+
+    if(!incomplete.length){
+      card.style.display = 'none';
+      return;
+    }
+
+    card.style.display = 'flex';
+    text.textContent = incomplete.length + ' goal' + (incomplete.length > 1 ? 's' : '') + ' left incomplete from yesterday.';
+    btn.onclick = () => {
+      const todayGoals = state.pGoals[today] || [];
+      incomplete.forEach(g => {
+        todayGoals.push({
+          id: pUid(),
+          text: g.text,
+          done: false,
+          subject: g.subject || ''
+        });
+      });
+      state.pGoals[today] = todayGoals;
+      queueSave();
+      renderPlanner();
+    };
+  }
+
+  function addGoal(text, subject){
+    if(!text) return;
+    if(!state.pGoals[pSelectedDay]) state.pGoals[pSelectedDay] = [];
+    state.pGoals[pSelectedDay].push({
+      id: pUid(),
+      text,
+      done: false,
+      subject: subject || ''
+    });
+    queueSave();
+  }
+
+  function setupPlanner(){
+    const input = document.getElementById('pGoalInput');
+    const subjSel = document.getElementById('pSubjectSelect');
+    const addBtn = document.getElementById('pAddBtn');
+    if(!input || !addBtn) return;
+
+    function populateSubjects(){
+      subjSel.innerHTML = '<option value="">Subject</option>';
+      (state.subjects || []).forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s; opt.textContent = s;
+        subjSel.appendChild(opt);
+      });
+    }
+
+    function handleAdd(){
+      const text = input.value.trim();
+      if(!text) return;
+      addGoal(text, subjSel.value);
+      input.value = '';
+      subjSel.value = '';
+      renderPlanner();
+    }
+
+    addBtn.addEventListener('click', handleAdd);
+    input.addEventListener('keydown', e => { if(e.key === 'Enter') handleAdd(); });
+    populateSubjects();
+  }
+
+  window.addEventListener('focus:render-subjects', () => {
+    const sel = document.getElementById('pSubjectSelect');
+    if(!sel) return;
+    sel.innerHTML = '<option value="">Subject</option>';
+    (state.subjects || []).forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s; opt.textContent = s;
+      sel.appendChild(opt);
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', setupPlanner);
+  if(document.readyState !== 'loading') setupPlanner();
+
+  // Sticky note drag & close
+  (function(){
+    const header = document.querySelector('.sn-header');
+    const closeBtn = document.getElementById('snClose');
+    if(!header) return;
+
+    if(closeBtn){
+      closeBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        document.getElementById('stickyNote').style.display = 'none';
+      });
+    }
+
+    let dragging = false, startX, startY, startR, startB;
+    header.addEventListener('mousedown', e => {
+      if(closeBtn && closeBtn.contains(e.target)) return;
+      dragging = true;
+      const rect = document.getElementById('stickyNote').getBoundingClientRect();
+      startX = e.clientX; startY = e.clientY;
+      startR = window.innerWidth - rect.right;
+      startB = window.innerHeight - rect.bottom;
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', e => {
+      if(!dragging) return;
+      const n = document.getElementById('stickyNote');
+      n.style.right = (startR - (e.clientX - startX)) + 'px';
+      n.style.bottom = (startB - (e.clientY - startY)) + 'px';
+      n.style.left = 'auto'; n.style.top = 'auto';
+    });
+    document.addEventListener('mouseup', () => { dragging = false; });
+  })();
+
   function computeDayTotals(){
     const totals = {};
     state.sessions.forEach(s=>{
@@ -1444,6 +1742,7 @@ const firebaseConfig = {
     renderLog();
     renderSubjectsPage();
     renderActivityPage();
+    renderPlanner();
   }
 
   // ============================================================
