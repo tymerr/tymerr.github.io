@@ -33,6 +33,9 @@
       <button class="nav-item" data-page="subjects">
         <span class="nav-ico">◇</span><span class="nav-label">Subjects</span>
       </button>
+      <button class="nav-item" data-page="planner">
+        <span class="nav-ico">☑</span><span class="nav-label">Planner</span>
+      </button>
     </div>
 
     <div class="nav-group nav-group-bottom">
@@ -101,6 +104,14 @@
         </div>
         <div id="breakdownList" class="donut-row"></div>
       </div>
+
+      <aside class="sticky-note" id="stickyNote">
+        <div class="sn-header">
+          <span>Today's Plan</span>
+          <span class="sn-close" id="snClose">✕</span>
+        </div>
+        <div class="sn-body" id="snBody"></div>
+      </aside>
     </section>
 
     <!-- ---------- PAGE: ACTIVITY ---------- -->
@@ -255,6 +266,39 @@
         <button id="addSubjectBtn">+ add</button>
       </div>
       <div id="subjectsList" class="subjects-list"></div>
+    </section>
+
+    <!-- ---------- PAGE: PLANNER ---------- -->
+    <section class="page" id="page-planner">
+      <div class="page-head">
+        <h1>Planner</h1>
+        <p class="page-sub">Plan your daily goals.</p>
+      </div>
+
+      <div class="p-day-strip" id="pDayStrip"></div>
+
+      <div class="p-goals-card" id="pGoalsCard">
+        <div class="p-goals-header">
+          <div class="p-goals-title" id="pGoalsTitle"></div>
+          <div class="p-progress-wrap">
+            <div class="p-progress-bar" id="pProgressBar"><div class="p-progress-fill" id="pProgressFill"></div></div>
+            <div class="p-progress-label" id="pProgressLabel">0 / 0 done</div>
+          </div>
+        </div>
+
+        <div id="pGoalList" class="p-goal-list"></div>
+
+        <div class="p-add-row">
+          <select id="pSubjectSelect" aria-label="Subject"><option value="">Subject</option></select>
+          <input id="pGoalInput" placeholder="Add a goal…" maxlength="120">
+          <button id="pAddBtn">+ Add</button>
+        </div>
+      </div>
+
+      <div class="p-carry-card" id="pCarryCard" style="display:none;">
+        <div class="p-carry-text" id="pCarryText"></div>
+        <button class="p-carry-btn" id="pCarryBtn">Carry forward →</button>
+      </div>
     </section>
 
     <!-- ---------- PAGE: ADMIN ---------- -->
