@@ -234,6 +234,7 @@ const firebaseConfig = {
         if(!state.subjects) state.subjects = [];
         if(!state.subjectColors) state.subjectColors = {};
         if(!state.pGoals) state.pGoals = {};
+        if(!state.pMockDays) state.pMockDays = {};
       }
     }catch(e){
       console.error('Could not load saved data — check your Firebase config.', e);
@@ -264,12 +265,18 @@ const firebaseConfig = {
 
   function pruneGoals(){
     const today = startOfDay(Date.now());
-    const min = today - 3 * DAY_MS;
-    const max = today + 3 * DAY_MS;
+    const min = today - 365 * DAY_MS;
+    const max = today + 365 * DAY_MS;
     Object.keys(state.pGoals).forEach(k => {
       const ts = Number(k);
       if(ts < min || ts > max) delete state.pGoals[k];
     });
+    if(state.pMockDays){
+      Object.keys(state.pMockDays).forEach(k => {
+        const ts = Number(k);
+        if(ts < min || ts > max) delete state.pMockDays[k];
+      });
+    }
   }
 
   function queueSave(){
@@ -939,6 +946,7 @@ const firebaseConfig = {
   // PLANNER
   // ============================================================
   let pSelectedDay = startOfDay(Date.now());
+  let pCalView = new Date();
 
   function pUid(){
     return 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
@@ -961,12 +969,12 @@ const firebaseConfig = {
       const cb = document.createElement('div');
       cb.className = 'sn-cb' + (g.done ? ' checked' : '');
       cb.addEventListener('click', () => {
-        g.done = !g.done;
-        renderStickyNote();
-        renderGoals();
-        renderChips();
-        queueSave();
-        renderCarryForward();
+          g.done = !g.done;
+          renderStickyNote();
+          renderGoals();
+          renderCalendar();
+          queueSave();
+          renderCarryForward();
       });
 
       const txt = document.createElement('span');
@@ -989,42 +997,124 @@ const firebaseConfig = {
         subjSel.appendChild(opt);
       });
     }
-    renderChips();
+    renderCalendar();
     renderGoals();
     renderStickyNote();
     renderCarryForward();
   }
 
-  function renderChips(){
-    const strip = document.getElementById('pDayStrip');
-    if(!strip) return;
-    strip.innerHTML = '';
+  function renderCalendar(){
+    const grid = document.getElementById('pCalGrid');
+    const monthEl = document.getElementById('pCalMonth');
+    if(!grid || !monthEl) return;
+    grid.innerHTML = '';
+
+    const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    dows.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'p-cal-dow';
+      el.textContent = d;
+      grid.appendChild(el);
+    });
+
+    const year = pCalView.getFullYear();
+    const month = pCalView.getMonth();
+    monthEl.textContent = pCalView.toLocaleDateString([], { month:'long', year:'numeric' });
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
     const today = startOfDay(Date.now());
-    const dowShort = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const dayTotals = computeDayTotals();
 
-    for(let offset = -3; offset <= 3; offset++){
-      const ts = today + offset * 86400000;
-      const d = new Date(ts);
-      const isToday = offset === 0;
-      const isActive = ts === pSelectedDay;
-      const goals = state.pGoals[ts] || [];
-      const hasGoals = goals.length > 0;
+    let exams = [];
+    try{ exams = JSON.parse(localStorage.getItem('focus_exams')) || []; }catch(e){}
 
-      const chip = document.createElement('div');
-      chip.className = 'p-chip' + (isToday ? ' today' : '') + (isActive ? ' active' : '');
-      chip.innerHTML = `
-        <div class="cdow">${dowShort[d.getDay()]}</div>
-        <div class="cnum">${d.getDate()}</div>
-        ${isToday ? '<div class="ctoday">today</div>' : `<div class="cdot${hasGoals ? ' has' : ''}"></div>`}
-      `;
-      chip.addEventListener('click', () => {
-        pSelectedDay = ts;
-        renderChips();
-        renderGoals();
-        renderCarryForward();
-      });
-      strip.appendChild(chip);
+    const prevMonthDays = new Date(year, month, 0).getDate();
+    for(let i = firstDay - 1; i >= 0; i--){
+      const day = prevMonthDays - i;
+      const d = new Date(year, month - 1, day);
+      const ts = startOfDay(d.getTime());
+      calCreateCell(grid, day, ts, today, true, dayTotals, exams);
     }
+
+    for(let day = 1; day <= daysInMonth; day++){
+      const d = new Date(year, month, day);
+      const ts = startOfDay(d.getTime());
+      calCreateCell(grid, day, ts, today, false, dayTotals, exams);
+    }
+
+    const totalCells = firstDay + daysInMonth;
+    const remaining = (7 - (totalCells % 7)) % 7;
+    for(let day = 1; day <= remaining; day++){
+      const d = new Date(year, month + 1, day);
+      const ts = startOfDay(d.getTime());
+      calCreateCell(grid, day, ts, today, true, dayTotals, exams);
+    }
+  }
+
+  function calCreateCell(container, dayNum, ts, today, isOther, dayTotals, exams){
+    const cell = document.createElement('div');
+    cell.className = 'p-cal-cell';
+    if(isOther) cell.classList.add('other');
+    if(ts === today) cell.classList.add('today');
+    if(ts === pSelectedDay) cell.classList.add('active');
+
+    const num = document.createElement('div');
+    num.className = 'cal-num';
+    num.textContent = dayNum;
+    cell.appendChild(num);
+
+    const studyMs = dayTotals[ts] || 0;
+    const timeEl = document.createElement('div');
+    timeEl.className = 'cal-time';
+    if(studyMs > 0){
+      timeEl.textContent = fmtMinShort(studyMs);
+    }
+    cell.appendChild(timeEl);
+
+    const labelEl = document.createElement('div');
+    labelEl.className = 'cal-label';
+
+    let hasLabel = false;
+
+    if(ts === today){
+      labelEl.textContent = 'today';
+      labelEl.classList.add('cal-label-today');
+      cell.appendChild(labelEl);
+      hasLabel = true;
+    }
+
+    if(state.pMockDays && state.pMockDays[ts]){
+      const mockEl = document.createElement('div');
+      mockEl.className = 'p-mock-badge';
+      mockEl.textContent = 'MOCK';
+      cell.appendChild(mockEl);
+    }
+
+    if(exams && exams.length){
+      const d = new Date(ts);
+      const dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      const exam = exams.find(e => e.date === dateStr);
+      if(exam){
+        const examEl = document.createElement('div');
+        examEl.className = 'cal-label cal-label-exam';
+        examEl.textContent = exam.name;
+        cell.appendChild(examEl);
+        hasLabel = true;
+      }
+    }
+
+    cell.addEventListener('click', () => {
+      pSelectedDay = ts;
+      if(isOther){
+        pCalView = new Date(new Date(ts).getFullYear(), new Date(ts).getMonth(), 1);
+      }
+      renderCalendar();
+      renderGoals();
+      renderCarryForward();
+    });
+
+    container.appendChild(cell);
   }
 
   function renderGoals(){
@@ -1037,6 +1127,28 @@ const firebaseConfig = {
     const d = new Date(pSelectedDay);
     const dowNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     title.textContent = dowNames[d.getDay()] + ', ' + d.toLocaleDateString([], {month:'long', day:'numeric'});
+
+    let mockBtn = document.getElementById('pMockBtn');
+    if(!mockBtn){
+      mockBtn = document.createElement('button');
+      mockBtn.id = 'pMockBtn';
+      mockBtn.className = 'p-mock-btn';
+      title.parentNode.appendChild(mockBtn);
+    }
+    const isMock = state.pMockDays && state.pMockDays[pSelectedDay];
+    mockBtn.textContent = isMock ? 'Mock' : '+ Mock';
+    mockBtn.classList.toggle('active', !!isMock);
+    mockBtn.onclick = () => {
+      if(!state.pMockDays) state.pMockDays = {};
+      if(state.pMockDays[pSelectedDay]){
+        delete state.pMockDays[pSelectedDay];
+      } else {
+        state.pMockDays[pSelectedDay] = true;
+      }
+      queueSave();
+      renderCalendar();
+      renderGoals();
+    };
 
     const goals = state.pGoals[pSelectedDay] || [];
     const done = goals.filter(g => g.done).length;
@@ -1064,7 +1176,7 @@ const firebaseConfig = {
           g.done = cb.checked;
           state.pGoals[pSelectedDay] = goals;
           renderGoals();
-          renderChips();
+          renderCalendar();
           renderStickyNote();
           queueSave();
           renderCarryForward();
@@ -1171,9 +1283,29 @@ const firebaseConfig = {
       renderPlanner();
     }
 
+    if(document.querySelector('#pCalPrev').dataset.bound) return;
+    document.querySelector('#pCalPrev').dataset.bound = '1';
+
     addBtn.addEventListener('click', handleAdd);
     input.addEventListener('keydown', e => { if(e.key === 'Enter') handleAdd(); });
     populateSubjects();
+
+    document.getElementById('pCalPrev').addEventListener('click', () => {
+      pCalView = new Date(pCalView.getFullYear(), pCalView.getMonth() - 1, 1);
+      renderCalendar();
+    });
+    document.getElementById('pCalNext').addEventListener('click', () => {
+      pCalView = new Date(pCalView.getFullYear(), pCalView.getMonth() + 1, 1);
+      renderCalendar();
+    });
+    document.getElementById('pCalToday').addEventListener('click', () => {
+      const now = new Date();
+      pCalView = new Date(now.getFullYear(), now.getMonth(), 1);
+      pSelectedDay = startOfDay(Date.now());
+      renderCalendar();
+      renderGoals();
+      renderCarryForward();
+    });
   }
 
   window.addEventListener('focus:render-subjects', () => {
