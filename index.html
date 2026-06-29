@@ -350,11 +350,21 @@
       </div>
 
       <div class="plt-subtab active" id="plt-goals">
-        <div class="p-day-strip" id="pDayStrip"></div>
+        <div class="p-calendar" id="pCalendar">
+          <div class="p-cal-nav">
+            <button class="p-cal-btn" id="pCalToday">Today</button>
+            <button class="p-cal-btn" id="pCalPrev">‹</button>
+            <span class="p-cal-month" id="pCalMonth"></span>
+            <button class="p-cal-btn" id="pCalNext">›</button>
+          </div>
+          <div class="p-cal-grid" id="pCalGrid"></div>
+        </div>
 
         <div class="p-goals-card" id="pGoalsCard">
           <div class="p-goals-header">
-            <div class="p-goals-title" id="pGoalsTitle"></div>
+            <div class="p-goals-title-row">
+              <div class="p-goals-title" id="pGoalsTitle"></div>
+            </div>
             <div class="p-progress-wrap">
               <div class="p-progress-bar" id="pProgressBar"><div class="p-progress-fill" id="pProgressFill"></div></div>
               <div class="p-progress-label" id="pProgressLabel">0 / 0 done</div>
