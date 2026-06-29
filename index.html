@@ -11,91 +11,66 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 .jee-dashboard *{box-sizing:border-box;margin:0;padding:0}
-.jee-dashboard{font-family:'Inter',sans-serif;color:var(--text);font-size:0.9rem}
-.jee-dashboard h2{font-family:'Spectral',serif;font-size:1.25rem;font-weight:600;margin-bottom:0.75rem}
-.jee-dashboard h3{font-family:'Spectral',serif;font-size:1.05rem;font-weight:600;margin-bottom:0.5rem}
-.jee-dashboard p{color:var(--text-dim);font-size:0.85rem}
-.jee-dashboard .jee-grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.65rem;margin-bottom:1.25rem}
-.jee-dashboard .jee-metric-card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:0.9rem;text-align:center}
-.jee-dashboard .jee-metric-card .val{font-size:1.5rem;font-weight:700;color:var(--amber);line-height:1.2;font-family:'Spectral',serif}
-.jee-dashboard .jee-metric-card .label{font-size:0.72rem;color:var(--text-faint);margin-top:0.2rem}
-.jee-dashboard .jee-card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin-bottom:1rem}
-.jee-dashboard table{width:100%;border-collapse:collapse;font-size:0.82rem;margin:0.4rem 0}
-.jee-dashboard th,.jee-dashboard td{padding:0.5rem 0.65rem;text-align:left;border-bottom:1px solid var(--line)}
-.jee-dashboard th{font-weight:600;color:var(--text-faint);font-size:0.72rem}
-.jee-dashboard tr:nth-child(even) td{background:var(--paper-raised)}
-.jee-dashboard .jee-table-wrap{overflow-x:auto}
-.jee-dashboard .jee-chart-contain{position:relative;max-width:280px;margin:0 auto 0.75rem}
-.jee-dashboard .jee-chart-full{max-width:100%;height:220px;margin:0.75rem 0}
-.jee-dashboard .jee-insight-box{background:var(--paper-raised);border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:0.75rem 1rem;margin-bottom:0.65rem}
-.jee-dashboard .jee-insight-box .title{font-weight:600;color:var(--text);margin-bottom:0.15rem;font-size:0.85rem}
-.jee-dashboard .jee-insight-box p{font-size:0.8rem}
-.jee-dashboard .jee-chapter-list{display:flex;flex-direction:column;gap:0.4rem}
-.jee-dashboard .jee-chapter-row{display:grid;grid-template-columns:1.8rem 1fr 2.2rem;align-items:center;gap:0.5rem;padding:0.4rem 0.5rem;border-radius:6px;border:1px solid var(--line);background:var(--paper)}
-.jee-dashboard .jee-chapter-row .rank{font-weight:700;font-size:0.75rem;color:var(--text-faint);text-align:center}
-.jee-dashboard .jee-chapter-row .name{font-size:0.8rem;font-weight:500}
-.jee-dashboard .jee-chapter-row .pct{font-size:0.72rem;font-weight:600;text-align:right}
-.jee-dashboard .jee-chapter-row .bar-wrap{grid-column:2/3;height:6px;background:var(--paper-raised);border-radius:3px;overflow:hidden}
-.jee-dashboard .jee-chapter-row .bar{height:100%;border-radius:3px;transition:width 0.4s ease}
-.jee-dashboard .jee-chapter-row.tier-1{border-left:3px solid #8B7FD3}
-.jee-dashboard .jee-chapter-row.tier-1 .bar{background:#8B7FD3}
-.jee-dashboard .jee-chapter-row.tier-2{border-left:3px solid var(--sage)}
-.jee-dashboard .jee-chapter-row.tier-2 .bar{background:var(--sage)}
-.jee-dashboard .jee-chapter-row.tier-3{border-left:3px solid var(--amber)}
-.jee-dashboard .jee-chapter-row.tier-3 .bar{background:var(--amber)}
-.jee-dashboard .jee-tier-label{font-size:0.75rem;font-weight:600;padding:0.2rem 0.6rem;border-radius:4px;display:inline-block;margin:0.6rem 0 0.3rem}
-.jee-dashboard .jee-tier-label.t1{background:#2A2340;color:#8B7FD3}
-.jee-dashboard .jee-tier-label.t2{background:var(--sage-dim);color:var(--sage)}
-.jee-dashboard .jee-tier-label.t3{background:var(--amber-dim);color:var(--amber)}
-.jee-dashboard .jee-split-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.jee-dashboard .jee-timeline-item{display:flex;gap:1rem;padding:0.65rem 0;border-bottom:1px solid var(--line)}
-.jee-dashboard .jee-timeline-item:last-child{border-bottom:none}
-.jee-dashboard .jee-timeline-item .period{font-weight:700;font-size:0.78rem;color:var(--amber);min-width:85px;flex-shrink:0}
-.jee-dashboard .jee-timeline-item .desc{font-size:0.8rem;color:var(--text-dim)}
-.jee-dashboard .jee-badge{display:inline-block;font-size:0.65rem;font-weight:600;padding:0.1rem 0.4rem;border-radius:3px;margin-left:0.25rem}
-.jee-dashboard .jee-badge.t1{background:#2A2340;color:#8B7FD3}
-.jee-dashboard .jee-badge.t2{background:var(--sage-dim);color:var(--sage)}
-.jee-dashboard .jee-badge.t3{background:var(--amber-dim);color:var(--amber)}
-.jee-dashboard .jee-schedule-grid{display:grid;grid-template-columns:70px repeat(7,1fr);gap:0.2rem;font-size:0.72rem}
-.jee-dashboard .jee-schedule-grid .day-hdr{font-weight:600;text-align:center;padding:0.35rem 0;color:var(--text-faint);font-size:0.68rem}
-.jee-dashboard .jee-schedule-grid .time-lbl{font-weight:600;color:var(--text-faint);padding:0.35rem 0.25rem;text-align:right;font-size:0.65rem}
-.jee-dashboard .jee-schedule-grid .slot{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:0.25rem;min-height:34px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:0.62rem}
-.jee-dashboard .jee-schedule-grid .slot.math{background:#2A2340;border-color:#8B7FD3;color:#8B7FD3}
-.jee-dashboard .jee-schedule-grid .slot.physics{background:var(--sage-dim);border-color:var(--sage);color:var(--sage)}
-.jee-dashboard .jee-schedule-grid .slot.chemistry{background:var(--amber-dim);border-color:var(--amber);color:var(--amber)}
-.jee-dashboard .jee-schedule-grid .slot.revision{background:var(--paper-raised);border-color:var(--text-faint);color:var(--text-faint)}
-.jee-dashboard .jee-schedule-grid .slot.break{background:transparent;border-color:var(--line);color:var(--text-faint)}
-.jee-dashboard .jee-legend-row{display:flex;flex-wrap:wrap;gap:0.75rem;margin:0.5rem 0;font-size:0.72rem}
-.jee-dashboard .jee-legend-row span{display:flex;align-items:center;gap:0.3rem}
-.jee-dashboard .jee-legend-dot{width:9px;height:9px;border-radius:2px;display:inline-block;flex-shrink:0}
-.jee-dashboard .jee-nvq-card{background:var(--paper-raised);border-radius:8px;padding:0.75rem 0.9rem;margin-bottom:0.5rem}
-.jee-dashboard .jee-nvq-card .title{font-weight:600;color:var(--text);margin-bottom:0.15rem;font-size:0.82rem}
-.jee-dashboard .jee-nvq-card p{font-size:0.78rem}
-.jee-dashboard .jee-daily-split{display:flex;flex-wrap:wrap;gap:0.65rem;margin-top:0.4rem}
-.jee-dashboard .jee-daily-split > div{flex:1;min-width:100px;padding:0.65rem;border-radius:6px;text-align:center;border:1px solid}
-.jee-dashboard ul.jee-list{padding-left:1.2rem;font-size:0.82rem;color:var(--text-dim)}
-.jee-dashboard ul.jee-list li{margin-bottom:0.3rem}
-.jee-dashboard ol.jee-list{padding-left:1.2rem;font-size:0.82rem;color:var(--text-dim)}
-.jee-dashboard ol.jee-list li{margin-bottom:0.35rem}
-.jee-dashboard .jee-detail-note{font-size:0.78rem;color:var(--text-faint);margin-top:0.4rem}
-.jee-subnav{display:flex;gap:0.25rem;margin-bottom:1rem;background:var(--paper-raised);padding:0.25rem;border-radius:8px;width:fit-content;flex-wrap:wrap}
-.jee-subnav-btn{padding:0.4rem 0.85rem;border:none;background:transparent;font-family:'Inter';font-size:0.78rem;font-weight:500;color:var(--text-faint);cursor:pointer;border-radius:6px;transition:background 0.15s,color 0.15s}
-.jee-subnav-btn:hover{color:var(--text-dim)}
-.jee-subnav-btn.active{background:var(--amber-dim);color:var(--amber)}
-.jee-sub{display:none}
-.jee-sub.active{display:block}
-@media (max-width:640px){
-.jee-dashboard .jee-grid-4{grid-template-columns:repeat(2,1fr)}
-.jee-dashboard .jee-split-wrap{grid-template-columns:1fr}
-.jee-dashboard .jee-chapter-row{grid-template-columns:1.4rem 1fr 2rem;gap:0.35rem}
-.jee-dashboard .jee-schedule-grid{font-size:0.6rem;grid-template-columns:45px repeat(7,1fr)}
-.jee-dashboard .jee-schedule-grid .slot{font-size:0.55rem;padding:0.15rem;min-height:28px}
+.jee-dashboard{font-family:'Inter',sans-serif;color:#e0e0e0;font-size:0.9rem}
+.jee-inner{background:#111;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.jee-header{margin-bottom:1rem}
+.jee-header h2{font-family:'Spectral',serif;font-size:1.3rem;font-weight:600;color:#e0e0e0;margin-bottom:0.2rem}
+.jee-header p{font-size:0.75rem;color:#888;margin:0}
+.jee-controls{display:flex;gap:0.6rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.jee-search{flex:1;min-width:150px;padding:0.45rem 0.7rem;background:#1e1e1e;border:1px solid #333;border-radius:6px;color:#e0e0e0;font-size:0.8rem;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s}
+.jee-search:focus{border-color:#666}
+.jee-search::placeholder{color:#555}
+.jee-btn{padding:0.45rem 0.8rem;border-radius:6px;font-size:0.76rem;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:opacity 0.2s;border:none;white-space:nowrap}
+.jee-btn-outline{background:#1e1e1e;border:1px solid #333;color:#e0e0e0}
+.jee-btn-outline:hover{border-color:#666}
+.jee-btn-green{background:#4caf50;color:#fff}
+.jee-btn-green:hover{opacity:0.85}
+.jee-tabs{display:flex;gap:0.25rem;margin-bottom:1rem;background:#1a1a1a;padding:0.25rem;border-radius:8px;width:fit-content}
+.jee-tab{padding:0.4rem 1rem;border:none;background:transparent;color:#888;font-size:0.78rem;font-weight:500;cursor:pointer;border-radius:6px;transition:background 0.15s,color 0.15s;font-family:'Inter',sans-serif}
+.jee-tab:hover{color:#e0e0e0}
+.jee-tab.active{background:#2a2a2a;color:#e0e0e0}
+.jee-panel{display:none}
+.jee-panel.active{display:block}
+.jee-tier-hdr{display:flex;align-items:center;gap:0.5rem;margin:0.7rem 0 0.35rem}
+.jee-tier-badge{font-size:0.68rem;font-weight:600;padding:0.15rem 0.5rem;border-radius:4px}
+.jee-tier-badge.t1{background:rgba(76,175,80,0.18);color:#4caf50}
+.jee-tier-badge.t2{background:rgba(255,193,7,0.18);color:#ffc107}
+.jee-tier-badge.t3{background:rgba(239,159,39,0.18);color:#ef9f27}
+.jee-tier-desc{font-size:0.68rem;color:#666}
+.jee-chapters{display:flex;flex-direction:column;gap:0.25rem;margin-bottom:0.4rem}
+.jee-row{display:grid;grid-template-columns:1.5rem 1fr auto 3rem;align-items:center;gap:0.5rem;padding:0.4rem 0.55rem;background:#1e1e1e;border-radius:6px;position:relative}
+.jee-row .sno{font-size:0.7rem;color:#666;text-align:center;font-weight:500}
+.jee-row .name{font-size:0.78rem;color:#e0e0e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.jee-row .bar-wrap{height:5px;background:#2a2a2a;border-radius:3px;overflow:hidden}
+.jee-row .bar{height:100%;border-radius:3px;transition:width 0.6s ease;width:0}
+.jee-row .pct{font-size:0.7rem;font-weight:600;text-align:right}
+.jee-row.t1 .pct{color:#4caf50}
+.jee-row.t1 .bar{background:#4caf50}
+.jee-row.t2 .pct{color:#ffc107}
+.jee-row.t2 .bar{background:#ffc107}
+.jee-row.t3 .pct{color:#ef9f27}
+.jee-row.t3 .bar{background:#ef9f27}
+.jee-row .tip{position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:#333;color:#e0e0e0;font-size:0.65rem;padding:0.2rem 0.5rem;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.15s;z-index:10}
+.jee-row .tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#333}
+.jee-row:hover .tip{opacity:1}
+.jee-no-results{padding:1.5rem;text-align:center;color:#666;font-size:0.8rem}
+.jee-footer{margin-top:1rem;padding-top:0.6rem;border-top:1px solid #2a2a2a;font-size:0.68rem;color:#555;text-align:center}
+@media (max-width:600px){
+.jee-inner{padding:0.75rem}
+.jee-row{grid-template-columns:1.2rem 1fr auto 2.6rem;gap:0.3rem;padding:0.35rem 0.4rem}
+.jee-controls{flex-direction:column}
+.jee-search{width:100%;min-width:0}
+.jee-tabs{width:100%}
+.jee-tab{flex:1;text-align:center;padding:0.4rem 0.5rem}
 }
-[data-theme="light"] .jee-dashboard .jee-tier-label.t1{background:#EDE9F9;color:#6B5FC0}
-[data-theme="light"] .jee-dashboard .jee-chapter-row.tier-1{border-left-color:#6B5FC0}
-[data-theme="light"] .jee-dashboard .jee-chapter-row.tier-1 .bar{background:#6B5FC0}
-[data-theme="light"] .jee-dashboard .jee-schedule-grid .slot.math{background:#EDE9F9;border-color:#6B5FC0;color:#6B5FC0}
-[data-theme="light"] .jee-dashboard .jee-badge.t1{background:#EDE9F9;color:#6B5FC0}
+@media print{
+body *{visibility:hidden!important}
+.jee-dashboard,.jee-dashboard *{visibility:visible!important}
+.jee-dashboard{position:absolute;left:0;top:0;width:100%}
+.jee-inner{background:#111!important;padding:0.3in!important}
+.jee-btn,.jee-search{display:none!important}
+.jee-row{break-inside:avoid}
+}
 </style>
 </head>
 <body>
@@ -585,120 +560,229 @@
 <script type="module" src="script.js"></script>
 <script>
 (function(){'use strict';
-var mathC=[
-{n:'3D Geometry',w:7.35,t:1},{n:'Sequences & series',w:5.74,t:1},{n:'Limits, continuity & differentiability',w:5.50,t:1},{n:'Definite integration',w:5.08,t:1},{n:'Binomial theorem',w:5.05,t:1},
-{n:'Complex numbers',w:4.75,t:2},{n:'Applications of derivatives',w:4.75,t:2},{n:'Vector algebra',w:4.69,t:2},{n:'Differential equations',w:4.16,t:2},{n:'Determinants',w:4.00,t:2},{n:'Permutations & combinations',w:3.60,t:2},{n:'Matrices',w:3.46,t:2},{n:'Quadratic equations',w:3.30,t:2},{n:'Circles',w:3.24,t:2},{n:'Probability',w:3.09,t:2},
-{n:'Statistics',w:3.00,t:3},{n:'Application of integrals',w:2.97,t:3},{n:'Straight lines',w:2.71,t:3},{n:'Parabola',w:2.44,t:3},{n:'Ellipse',w:2.11,t:3},{n:'Hyperbola',w:1.65,t:3},{n:'Inverse trigonometry',w:1.59,t:3},{n:'Trigonometric equations',w:1.35,t:3},{n:'Sets',w:1.00,t:3},{n:'Properties of triangle',w:0.36,t:3}];
-var physC=[
-{n:'Current electricity',w:7.10,t:1},{n:'Electrostatics',w:6.80,t:1},{n:'Ray optics',w:5.50,t:1},{n:'Modern physics',w:5.20,t:1},{n:'Gravitation',w:4.49,t:1},
-{n:'Rotational motion',w:4.31,t:2},{n:'Units & measurements',w:4.24,t:2},{n:'Semiconductors',w:3.80,t:2},{n:'EM induction',w:3.60,t:2},{n:'Magnetism & moving charges',w:3.40,t:2},{n:'Oscillations / SHM',w:3.25,t:2},{n:'Thermodynamics',w:3.06,t:2},{n:'Fluids',w:3.00,t:2},{n:'Motion in a plane',w:2.92,t:2},{n:'Kinetic theory',w:2.88,t:2},
-{n:'Motion in a straight line',w:2.63,t:3},{n:'Centre of mass',w:2.56,t:3},{n:'Capacitors',w:2.50,t:3},{n:'Work, energy & power',w:2.37,t:3},{n:'Thermal properties',w:2.08,t:3},{n:"Newton's laws of motion",w:2.05,t:3},{n:'Waves',w:1.94,t:3},{n:'EM waves',w:1.80,t:3},{n:'Communication systems',w:1.50,t:3},{n:'Mathematical tools',w:0.00,t:3}];
-var chemC=[
-{n:'Coordination compounds',w:7.50,t:1},{n:'Chemical bonding',w:6.80,t:1},{n:'Thermodynamics',w:6.40,t:1},{n:'Aldehydes, ketones & carboxylic acids',w:6.20,t:1},{n:'GOC & reaction mechanisms',w:5.90,t:1},
-{n:'Electrochemistry',w:4.80,t:2},{n:'Chemical equilibrium',w:4.60,t:2},{n:'p-Block elements',w:4.40,t:2},{n:'Haloalkanes & haloarenes',w:4.20,t:2},{n:'Alcohols, phenols & ethers',w:4.00,t:2},{n:'Atomic structure',w:3.80,t:2},{n:'Mole concept',w:3.60,t:2},{n:'Solutions',w:3.40,t:2},{n:'Amines',w:3.20,t:2},{n:'Hydrocarbons',w:3.00,t:2},
-{n:'Solid state',w:2.80,t:3},{n:'Surface chemistry',w:2.60,t:3},{n:'Nuclear chemistry',w:2.40,t:3},{n:'d & f block elements',w:2.20,t:3},{n:'Qualitative analysis',w:2.00,t:3},{n:'Redox reactions',w:1.80,t:3},{n:'Polymers / everyday chemistry',w:1.50,t:3},{n:'Environmental chemistry',w:1.20,t:3}];
-var chaptersMap={math:mathC,physics:physC,chem:chemC};
-var booksData=[{s:'Mathematics',b:'RD Sharma (concepts), Cengage (advanced), Arihant PYQ collection'},{s:'Physics',b:'HC Verma (concepts), DC Pandey (problems), NCERT (theory, must read)'},{s:'Chemistry',b:'NCERT (non-negotiable), MS Chouhan (organic), OP Tandon (inorganic), N Awasthi (physical)'}];
-var lowROI=['Properties of triangle (math) — ~0.4% weightage','Mathematical tools (physics) — rarely tested directly','Environmental chemistry — ~1.2%, superficial coverage','Communication systems (physics) — ~1.5%, rote memorization','Hyperbola (math) — ~1.7%, very specific questions'];
-var charts={},jeeRendered=false;
+// ── Data ──
+var subjects={
+  physics:{
+    name:'Physics',
+    chapters:[
+      {n:'Current Electricity',w:6.57,t:1,c:'Class XII'},
+      {n:'Ray Optics & Optical Instruments',w:5.04,t:1,c:'Class XII'},
+      {n:'Semiconductor Electronics',w:4.75,t:1,c:'Class XII'},
+      {n:'Gravitation',w:4.49,t:1,c:'Class XI'},
+      {n:'Electrostatic Potential & Capacitance',w:4.49,t:1,c:'Class XII'},
+      {n:'Rotational Motion',w:4.31,t:1,c:'Class XI'},
+      {n:'Units & Measurements',w:4.24,t:1,c:'Class XI'},
+      {n:'Dual Nature of Radiation & Matter',w:4.05,t:1,c:'Class XII'},
+      {n:'Alternating Current',w:3.73,t:2,c:'Class XII'},
+      {n:'Oscillations (SHM)',w:3.25,t:2,c:'Class XI'},
+      {n:'Electromagnetic Induction',w:3.25,t:2,c:'Class XII'},
+      {n:'Electric Charges & Fields',w:3.18,t:2,c:'Class XII'},
+      {n:'Nuclei',w:3.14,t:2,c:'Class XII'},
+      {n:'Thermodynamics',w:3.06,t:2,c:'Class XI'},
+      {n:'Mechanical Properties of Fluids',w:3.00,t:2,c:'Class XI'},
+      {n:'Electromagnetic Waves',w:2.96,t:2,c:'Class XII'},
+      {n:'Kinetic Theory of Gases',w:2.88,t:2,c:'Class XI'},
+      {n:'Moving Charges & Magnetism',w:2.89,t:2,c:'Class XII'},
+      {n:'Motion in a Plane',w:2.92,t:2,c:'Class XI'},
+      {n:'Work, Energy & Power',w:2.37,t:2,c:'Class XI'},
+      {n:'Motion in a Straight Line',w:2.63,t:2,c:'Class XI'},
+      {n:'Centre of Mass',w:2.56,t:2,c:'Class XI'},
+      {n:'Atoms',w:2.48,t:2,c:'Class XII'},
+      {n:'Wave Optics',w:2.30,t:2,c:'Class XII'},
+      {n:'Mechanical Properties of Solids',w:2.08,t:2,c:'Class XI'},
+      {n:'Thermal Properties of Matter',w:2.08,t:2,c:'Class XI'},
+      {n:"Newton's Laws of Motion",w:2.05,t:2,c:'Class XI'},
+      {n:'Magnetism & Matter',w:1.90,t:3,c:'Class XII'},
+      {n:'Waves',w:1.94,t:3,c:'Class XI'},
+      {n:'Mathematical Tools',w:0.00,t:3,c:'Class XI'}
+    ]
+  },
+  chemistry:{
+    name:'Chemistry',
+    chapters:[
+      {n:'Coordination Compounds',w:6.50,t:1,c:'Class XII'},
+      {n:'Chemical Thermodynamics',w:3.65,t:1,c:'Class XI'},
+      {n:'Atomic Structure',w:3.34,t:1,c:'Class XI'},
+      {n:'Chemical Bonding & Molecular Structure',w:3.34,t:1,c:'Class XI'},
+      {n:'Electrochemistry',w:3.30,t:1,c:'Class XII'},
+      {n:'Chemical Kinetics',w:3.30,t:1,c:'Class XII'},
+      {n:'Aldehydes, Ketones & Carboxylic Acids',w:3.30,t:1,c:'Class XII'},
+      {n:'General Organic Chemistry (GOC)',w:3.30,t:1,c:'Class XII'},
+      {n:'p-Block Elements',w:3.30,t:1,c:'Class XII'},
+      {n:'d & f Block Elements',w:3.30,t:1,c:'Class XII'},
+      {n:'Aromatic Compounds',w:3.30,t:1,c:'Class XII'},
+      {n:'Alkyl Halides',w:3.30,t:1,c:'Class XII'},
+      {n:'Alcohols, Phenols & Ethers',w:3.30,t:1,c:'Class XII'},
+      {n:'Biomolecules, Polymers & Everyday Chemistry',w:3.30,t:1,c:'Class XII'},
+      {n:'Chemical & Ionic Equilibrium',w:3.00,t:2,c:'Class XI'},
+      {n:'Some Basic Concepts / Mole Concept',w:2.82,t:2,c:'Class XI'},
+      {n:'Solid State & Surface Chemistry',w:2.50,t:2,c:'Class XII'},
+      {n:'Solutions & Colligative Properties',w:2.50,t:2,c:'Class XII'},
+      {n:'Hydrocarbons',w:2.00,t:2,c:'Class XI'},
+      {n:'Hydrogen & s-Block Elements',w:2.00,t:2,c:'Class XII'},
+      {n:'Classification & Periodicity',w:1.93,t:3,c:'Class XI'},
+      {n:'States of Matter',w:1.89,t:3,c:'Class XI'},
+      {n:'Redox Reactions',w:1.50,t:3,c:'Class XI'},
+      {n:'Stereochemistry',w:1.50,t:3,c:'Class XII'},
+      {n:'Metallurgy',w:1.00,t:3,c:'Class XII'},
+      {n:'Environmental Chemistry',w:1.00,t:3,c:'Class XII'},
+      {n:'Salt Analysis',w:1.00,t:3,c:'Class XII'}
+    ]
+  },
+  mathematics:{
+    name:'Mathematics',
+    chapters:[
+      {n:'Three-Dimensional Geometry',w:7.35,t:1,c:'Class XII'},
+      {n:'Sequences & Series',w:5.74,t:1,c:'Class XI'},
+      {n:'Limit, Continuity & Differentiability',w:5.50,t:1,c:'Class XII'},
+      {n:'Definite Integration & Area',w:5.08,t:1,c:'Class XII'},
+      {n:'Binomial Theorem',w:5.05,t:1,c:'Class XI'},
+      {n:'Complex Numbers',w:4.75,t:1,c:'Class XI'},
+      {n:'Applications of Derivatives',w:4.75,t:1,c:'Class XII'},
+      {n:'Vector Algebra',w:4.69,t:1,c:'Class XII'},
+      {n:'Differential Equations',w:4.16,t:2,c:'Class XII'},
+      {n:'Determinants',w:4.00,t:2,c:'Class XII'},
+      {n:'Permutations & Combinations',w:3.60,t:2,c:'Class XI'},
+      {n:'Matrices',w:3.46,t:2,c:'Class XII'},
+      {n:'Quadratic Equations',w:3.30,t:2,c:'Class XI'},
+      {n:'Circles',w:3.24,t:2,c:'Class XI'},
+      {n:'Probability',w:3.09,t:2,c:'Class XII'},
+      {n:'Statistics',w:3.00,t:2,c:'Class XI'},
+      {n:'Application of Integrals',w:2.97,t:2,c:'Class XII'},
+      {n:'Straight Lines',w:2.71,t:2,c:'Class XI'},
+      {n:'Parabola',w:2.44,t:2,c:'Class XI'},
+      {n:'Ellipse',w:2.11,t:2,c:'Class XI'},
+      {n:'Hyperbola',w:1.65,t:3,c:'Class XI'},
+      {n:'Indefinite Integration',w:1.65,t:3,c:'Class XII'},
+      {n:'Inverse Trigonometric Functions',w:1.59,t:3,c:'Class XII'},
+      {n:'Trigonometric Equations',w:1.35,t:3,c:'Class XI'},
+      {n:'Relations & Functions',w:1.25,t:3,c:'Class XII'},
+      {n:'Methods of Differentiation',w:1.24,t:3,c:'Class XII'},
+      {n:'Trigonometric Ratios & Identities',w:1.02,t:3,c:'Class XI'},
+      {n:'Sets',w:1.00,t:3,c:'Class XI'},
+      {n:'Basic Maths & Logarithm',w:0.59,t:3,c:'Class XI'},
+      {n:'Properties of Triangle',w:0.36,t:3,c:'Class XI'}
+    ]
+  }
+};
 
-function qs(s){return document.querySelector(s)}
+var currentSubj='physics',sortBy='weightage',searchQ='',rendered=false;
+var tierLabels={1:'Focus first',2:'Important',3:'Cover later'};
+var tierClasses={1:'t1',2:'t2',3:'t3'};
+var tierDescs={1:'\u22655% weightage',2:'2\u20134.99% weightage',3:'<2% weightage'};
+
 function qsa(s){return document.querySelectorAll(s)}
 
-function renderJee(){
-  if(jeeRendered) return;
-  jeeRendered=true;
+function getFiltered(subjId){
+  var chs=subjects[subjId].chapters.slice();
+  if(sortBy==='alpha') chs.sort(function(a,b){
+    var an=a.n.toLowerCase(),bn=b.n.toLowerCase();
+    return an<bn?-1:an>bn?1:0;
+  });
+  return chs;
+}
+
+function render(){
   var root=document.getElementById('jeeDashboardRoot');
   if(!root) return;
-  root.innerHTML='<div class="jee-subnav">'+
-    '<button class="jee-subnav-btn active" data-jee-sub="math">Mathematics</button>'+
-    '<button class="jee-subnav-btn" data-jee-sub="physics">Physics</button>'+
-    '<button class="jee-subnav-btn" data-jee-sub="chem">Chemistry</button>'+
-    '<button class="jee-subnav-btn" data-jee-sub="resources">Resources</button></div>'+
-    '<div class="jee-sub active" id="jee-sub-math">'+renderJeeSubject('math')+'</div>'+
-    '<div class="jee-sub" id="jee-sub-physics">'+renderJeeSubject('physics')+'</div>'+
-    '<div class="jee-sub" id="jee-sub-chem">'+renderJeeSubject('chem')+'</div>'+
-    '<div class="jee-sub" id="jee-sub-resources">'+renderResources()+'</div>';
-  initJeeSubtab();
-  setTimeout(function(){initChartFor('math')},150);
-}
-function tierLbl(t){
-  if(t===1) return '<span class="jee-tier-label t1">Tier 1 · must do</span>';
-  if(t===2) return '<span class="jee-tier-label t2">Tier 2 · high priority</span>';
-  return '<span class="jee-tier-label t3">Tier 3 · cover later</span>';
-}
-function chapterRows(chs){
+  var subj=subjects[currentSubj];
+  var chs=getFiltered(currentSubj);
   var maxW=0;
-  chs.forEach(function(c){if(c.w>maxW)maxW=c.w});
-  return chs.map(function(c,i){
-    var pct=c.w/maxW*100;
-    return '<div class="jee-chapter-row tier-'+c.t+'">'+
-      '<span class="rank">'+(i+1)+'</span>'+
-      '<span class="name">'+c.n+'</span>'+
-      '<span class="pct">'+c.w.toFixed(2)+'%</span>'+
-      '<div class="bar-wrap"><div class="bar" style="width:'+pct+'%"></div></div></div>';
-  }).join('');
-}
-function subjectTabHTML(id,label){
-  var chs=chaptersMap[id];
+  subj.chapters.forEach(function(c){if(c.w>maxW)maxW=c.w});
+  if(searchQ){
+    var q=searchQ.toLowerCase();
+    chs=chs.filter(function(c){return c.n.toLowerCase().indexOf(q)!==-1});
+  }
   var t1=chs.filter(function(c){return c.t===1});
   var t2=chs.filter(function(c){return c.t===2});
   var t3=chs.filter(function(c){return c.t===3});
-  var allSorted=chs.slice().sort(function(a,b){return b.w-a.w});
-  var html='<h2>'+label+' — chapter weightage</h2><p style="margin-bottom:0.6rem;font-size:0.82rem;color:var(--text-faint)">Based on last 3-4 years PYQ data. Chapters ranked by weightage.</p>';
-  if(t1.length) html+=tierLbl(1)+'<div class="jee-chapter-list" style="margin-bottom:0.6rem">'+chapterRows(t1)+'</div>';
-  if(t2.length) html+=tierLbl(2)+'<div class="jee-chapter-list" style="margin-bottom:0.6rem">'+chapterRows(t2)+'</div>';
-  if(t3.length) html+=tierLbl(3)+'<div class="jee-chapter-list">'+chapterRows(t3)+'</div>';
-  html+='<div style="margin-top:1.25rem"><h3>Top 8 chapters — visual comparison</h3><div class="jee-chart-full"><canvas id="jeeBar-'+id+'" aria-label="Top 8 chapters bar chart" role="img"></canvas></div></div>';
-  return html;
+  var html='<div class="jee-inner">'+
+    '<div class="jee-header"><h2>JEE Mains Chapter-wise Weightage</h2><p>Based on PYQ analysis from 2023\u20132025 (Jan + Apr sessions)</p></div>'+
+    '<div class="jee-controls">'+
+    '<input class="jee-search" id="jeeSearch" type="text" placeholder="Search chapters\u2026" value="'+searchQ+'">'+
+    '<button class="jee-btn jee-btn-outline" id="jeeSortBtn">Sort: '+(sortBy==='weightage'?'Weightage':'A\u2013Z')+'</button>'+
+    '<button class="jee-btn jee-btn-green" id="jeePdfBtn">Download PDF</button>'+
+    '</div>'+
+    '<div class="jee-tabs" id="jeeTabs">'+
+    '<button class="jee-tab'+(currentSubj==='physics'?' active':'')+'" data-subj="physics">Physics</button>'+
+    '<button class="jee-tab'+(currentSubj==='chemistry'?' active':'')+'" data-subj="chemistry">Chemistry</button>'+
+    '<button class="jee-tab'+(currentSubj==='mathematics'?' active':'')+'" data-subj="mathematics">Mathematics</button>'+
+    '</div>'+
+    '<div class="jee-panel active">';
+  if(chs.length===0){
+    html+='<div class="jee-no-results">No chapters match &quot;<strong>'+searchQ+'</strong>&quot;</div>';
+  }else{
+    if(t1.length) html+=renderTier(t1,1,maxW);
+    if(t2.length) html+=renderTier(t2,2,maxW);
+    if(t3.length) html+=renderTier(t3,3,maxW);
+  }
+  html+='</div>'+
+    '<div class="jee-footer">Data sourced from JEE Mains PYQ analysis 2023\u20132025 | Physics Wallah, eSaral, Careers360</div>'+
+    '</div>';
+  root.innerHTML=html;
+  bindEvents();
+  animateBars();
 }
-function renderJeeSubject(id){
-  var names={math:'Mathematics',physics:'Physics',chem:'Chemistry'};
-  var lowSubj={math:['Properties of triangle — ~0.4% weightage','Hyperbola — ~1.7% weightage'],physics:['Mathematical tools — rarely tested directly','Communication systems — ~1.5% weightage'],chem:['Environmental chemistry — ~1.2% weightage']};
-  var book=booksData.filter(function(b){return b.s.toLowerCase().indexOf(names[id].toLowerCase())!==-1})[0];
-  var html=subjectTabHTML(id,names[id]);
-  if(book) html+='<div class="jee-card" style="margin-top:1rem"><h3>Best books</h3><div class="jee-table-wrap"><table><tbody><tr><td><strong>'+book.s+'</strong></td><td>'+book.b+'</td></tr></tbody></table></div></div>';
-  if(lowSubj[id]) html+='<div class="jee-card"><h3>Low ROI chapters (skim only)</h3><ul class="jee-list">'+lowSubj[id].map(function(l){return '<li>'+l+'</li>'}).join('')+'</ul></div>';
-  return html;
-}
-function renderResources(){
-  return '<div class="jee-card"><h2>Resources</h2>'+
-    '<h3>Best books recommendation</h3><div class="jee-table-wrap"><table><thead><tr><th>Subject</th><th>Books</th></tr></thead><tbody>'+
-    booksData.map(function(b){return '<tr><td><strong>'+b.s+'</strong></td><td>'+b.b+'</td></tr>'}).join('')+
-    '</tbody></table></div>'+
-    '<h3 style="margin-top:1.25rem">Low ROI chapters (skim only)</h3><ul class="jee-list">'+lowROI.map(function(l){return '<li>'+l+'</li>'}).join('')+'</ul></div>';
-}
-function initChartFor(subj){
-  var cs=getComputedStyle(document.documentElement);
-  var sage=cs.getPropertyValue('--sage').trim()||'#7C9A82';
-  var amber=cs.getPropertyValue('--amber').trim()||'#E8A33D';
-  var ctx=document.getElementById('jeeBar-'+subj);
-  if(!ctx) return;
-  if(charts['b'+subj]){charts['b'+subj].destroy()}
-  var chs=chaptersMap[subj].slice().sort(function(a,b){return b.w-a.w}).slice(0,8);
-  var colors=chs.map(function(c){return c.t===1?'#8B7FD3':c.t===2?sage:amber});
-  charts['b'+subj]=new Chart(ctx,{
-    type:'bar',
-    data:{labels:chs.map(function(c){return c.n}),datasets:[{data:chs.map(function(c){return c.w}),backgroundColor:colors,borderWidth:0,borderRadius:3}]},
-    options:{responsive:true,maintainAspectRatio:true,indexAxis:'y',
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.parsed.x+'%'}}}},
-      scales:{x:{grid:{display:false},ticks:{font:{size:9},callback:function(v){return v+'%'}}},y:{grid:{display:false},ticks:{font:{size:9}}}}
-    }
+
+function renderTier(chs,tier,maxW){
+  var html='<div class="jee-tier-hdr"><span class="jee-tier-badge '+tierClasses[tier]+'">Tier '+tier+' \u2013 '+tierLabels[tier]+'</span><span class="jee-tier-desc">'+tierDescs[tier]+'</span></div>'+
+    '<div class="jee-chapters" id="jeeTier'+tier+'">';
+  chs.forEach(function(c,i){
+    var pct=c.w/maxW*100;
+    var cls=tierClasses[c.t];
+    html+='<div class="jee-row '+cls+'" data-tip="'+c.c+'">'+
+      '<span class="sno">'+(i+1)+'</span>'+
+      '<span class="name" title="'+c.n+'">'+c.n+'</span>'+
+      '<div class="bar-wrap"><div class="bar" data-w="'+pct+'"></div></div>'+
+      '<span class="pct">'+c.w.toFixed(2)+'%</span>'+
+      '<span class="tip">'+c.c+'</span></div>';
   });
+  html+='</div>';
+  return html;
 }
-function initJeeSubtab(){
-  qsa('.jee-subnav-btn').forEach(function(btn){
+
+function animateBars(){
+  setTimeout(function(){
+    document.querySelectorAll('.jee-row .bar').forEach(function(b){
+      b.style.width=b.dataset.w+'%';
+    });
+  },50);
+}
+
+function bindEvents(){
+  var search=document.getElementById('jeeSearch');
+  if(search){
+    search.addEventListener('input',function(){
+      searchQ=this.value;
+      render();
+    });
+  }
+  var sortBtn=document.getElementById('jeeSortBtn');
+  if(sortBtn){
+    sortBtn.addEventListener('click',function(){
+      sortBy=sortBy==='weightage'?'alpha':'weightage';
+      render();
+    });
+  }
+  var pdfBtn=document.getElementById('jeePdfBtn');
+  if(pdfBtn){
+    pdfBtn.addEventListener('click',function(){window.print()});
+  }
+  document.querySelectorAll('#jeeTabs .jee-tab').forEach(function(btn){
     btn.addEventListener('click',function(){
-      qsa('.jee-subnav-btn').forEach(function(b){b.classList.remove('active')});
-      btn.classList.add('active');
-      var name=btn.dataset.jeeSub;
-      qsa('.jee-sub').forEach(function(p){p.classList.remove('active')});
-      var panel=document.getElementById('jee-sub-'+name);
-      if(panel) panel.classList.add('active');
-      if(name!=='resources') setTimeout(function(){initChartFor(name)},100);
+      currentSubj=this.dataset.subj;
+      searchQ='';
+      render();
     });
   });
 }
+
+function initJeeDashboard(){
+  if(rendered) return;
+  rendered=true;
+  render();
+}
+
 function initPltSubtab(){
   qsa('.plt-subnav-btn').forEach(function(btn){
     btn.addEventListener('click',function(){
@@ -708,10 +792,10 @@ function initPltSubtab(){
       qsa('.plt-subtab').forEach(function(p){p.classList.remove('active')});
       var panel=document.getElementById('plt-'+name);
       if(panel) panel.classList.add('active');
-      if(name==='jee') renderJee();
+      if(name==='jee') initJeeDashboard();
     });
   });
-  renderJee();
+  if(document.getElementById('plt-jee').classList.contains('active')) initJeeDashboard();
 }
 document.addEventListener('DOMContentLoaded',initPltSubtab);
 })();
